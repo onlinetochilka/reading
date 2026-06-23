@@ -434,6 +434,42 @@ select {
 .ui-switch input:checked + .ui-switch__track .ui-switch__thumb { transform: translateX(20px); }
 .ui-switch input:disabled + .ui-switch__track { opacity: 0.38; cursor: not-allowed; }
 
+/* ── Segmented Control (iOS style) ───────────────────────────────────────── */
+.segmented-control {
+  display: flex;
+  background: rgba(27,58,107,0.08);
+  border-radius: 8px;
+  padding: 3px;
+  position: relative;
+}
+.segmented-control input[type="radio"] {
+  display: none;
+}
+.segmented-control label {
+  flex: 1;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 6px 4px;
+  margin: 0;
+  border-radius: 6px;
+  color: rgba(27,58,107,0.6);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 1;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.segmented-control input[type="radio"]:checked + label {
+  background: #fff;
+  color: var(--blue);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12), 0 1px 1px rgba(0,0,0,0.04);
+}
+.segmented-control input[type="radio"]:disabled + label {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* ── Expressiveness ──────────────────────────────────────────────────────── */
 .expressiveness-section h4 {
   font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.07em;

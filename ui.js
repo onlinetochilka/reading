@@ -208,8 +208,7 @@ const UI = (() => {
         (r.errors?.distortion || 0) +
         (r.errors?.accent     || 0) +
         (r.errors?.ending     || 0) +
-        (r.errors?.regression || 0) +
-        (r.errors?.syllabic   || 0);
+        (r.errors?.regression || 0);
 
       const normResult = r.grade ? Assessment.compareWithNorm(r.wpm, r.grade) : 'unknown';
       const wpmClass   =
@@ -228,6 +227,9 @@ const UI = (() => {
         <td>
           ${escapeHtml(r.studentName || '—')}
           ${r.studentId ? `<button class="btn-icon btn--ghost btn-chart" style="width:24px;height:24px;margin-left:4px;font-size:12px;" data-student-id="${r.studentId}" data-student-name="${escapeHtml(r.studentName || '')}" title="График динамики">📈</button>` : ''}
+          <div style="font-size: 0.75rem; color: rgba(27,58,107,0.6); margin-top: 4px; line-height: 1.3; max-width: 250px;">
+            ${escapeHtml(Assessment.generateSmartSummary(r))}
+          </div>
         </td>
         <td>${escapeHtml(r.className  || '—')}</td>
         <td>${escapeHtml(r.textTitle  || '—')}</td>
@@ -280,8 +282,13 @@ const UI = (() => {
 
     // Teacher-only expressiveness section
     const teacherSection = document.getElementById('modal-teacher-section');
+    const summarySection = document.getElementById('modal-summary-section');
     if (session.mode === 'teacher') {
       show(teacherSection);
+      show(summarySection);
+      const summaryText = document.getElementById('modal-summary-text');
+      if (summaryText) summaryText.textContent = Assessment.generateSmartSummary(session);
+
       const expContainer = document.getElementById('modal-expressiveness-list');
       if (expContainer) {
         const issues = [];
@@ -296,6 +303,7 @@ const UI = (() => {
       }
     } else {
       hide(teacherSection);
+      hide(summarySection);
     }
 
     // Comprehension questions

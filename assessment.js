@@ -87,6 +87,53 @@ const Assessment = (() => {
     localStorage.removeItem('tochilka_results');
   }
 
+  // ── Smart Summary ─────────────────────────────────────────────────────────
+
+  function generateSmartSummary(r) {
+    let summary = '';
+    
+    if (r.grade) {
+      const normResult = compareWithNorm(r.wpm, r.grade);
+      if (normResult === 'above') {
+        summary += `Скорость чтения выше нормы (${r.wpm} сл/мин). `;
+      } else if (normResult === 'normal') {
+        summary += `Скорость чтения в пределах нормы (${r.wpm} сл/мин). `;
+      } else if (normResult === 'below') {
+        summary += `Скорость чтения ниже нормы (${r.wpm} сл/мин). `;
+      } else {
+        summary += `Скорость чтения: ${r.wpm} сл/мин. `;
+      }
+    } else {
+      summary += `Скорость чтения: ${r.wpm} сл/мин. `;
+    }
+    
+    if (r.readingMethod) {
+      summary += `Читает: ${r.readingMethod.toLowerCase()}. `;
+    }
+    
+    let maxError = 0;
+    let maxErrorKey = null;
+    if (r.errors) {
+      for (const key of ['distortion', 'accent', 'ending', 'regression']) {
+        if (r.errors[key] > maxError) {
+          maxError = r.errors[key];
+          maxErrorKey = key;
+        }
+      }
+    }
+    
+    if (maxErrorKey) {
+      if (maxErrorKey === 'distortion') summary += 'Основная проблема: искажение слов.';
+      if (maxErrorKey === 'accent') summary += 'Часто ошибается в ударениях.';
+      if (maxErrorKey === 'ending') summary += 'Типичная ошибка: проглатывание/искажение окончаний.';
+      if (maxErrorKey === 'regression') summary += 'Склонность к регрессии (повторам).';
+    } else {
+      summary += 'Технических ошибок не зафиксировано.';
+    }
+    
+    return summary.trim();
+  }
+
   // ── CSV Export ────────────────────────────────────────────────────────────
 
   /** Export all results to a semicolon-delimited CSV with BOM for Russian Excel. */
@@ -100,9 +147,9 @@ const Assessment = (() => {
     const BOM = '\uFEFF';
     const headers = [
       'Дата', 'Ученик', 'Класс', 'Текст', 'Время (сек)', 'Слов/мин',
-      'Искажения', 'Ударения', 'Окончания', 'Регрессии', 'Слоговое чт.',
+      'Искажения', 'Ударения', 'Окончания', 'Регрессии', 'Способ чтения',
       'Игнор. знаков', 'Монотонность', 'Неверн. ударения',
-      'Осознанность (верно/всего)', 'Режим',
+      'Осознанность (верно/всего)', 'Режим', 'Вывод'
     ];
 
     const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
@@ -123,12 +170,13 @@ const Assessment = (() => {
         r.errors?.accent      || 0,
         r.errors?.ending      || 0,
         r.errors?.regression  || 0,
-        r.errors?.syllabic    || 0,
+        r.readingMethod       || '—',
         r.expressiveness?.ignoreSigns  ? 'Да' : 'Нет',
         r.expressiveness?.monotone     ? 'Да' : 'Нет',
         r.expressiveness?.wrongAccents ? 'Да' : 'Нет',
         comp,
         r.mode === 'self' ? 'Самопроверка' : 'Учитель',
+        generateSmartSummary(r)
       ].map(q).join(';');
     });
 
@@ -155,5 +203,6 @@ const Assessment = (() => {
     deleteResult,
     clearAll,
     exportCSV,
+    generateSmartSummary,
   };
 })();

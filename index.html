@@ -251,15 +251,19 @@
             </button>
           </div>
 
-          <!-- Syllabic toggle switch -->
-          <div class="syllabic-row">
-            <span class="syllabic-label">Слоговое чтение</span>
-            <label class="ui-switch" title="Отметить слоговое чтение">
-              <input type="checkbox" id="toggle-syllabic" data-action="toggle-syllabic" disabled />
-              <span class="ui-switch__track">
-                <span class="ui-switch__thumb"></span>
-              </span>
-            </label>
+          <!-- Reading method toggle -->
+          <div class="reading-method-section" style="margin: 14px 0;">
+            <h4 class="check-col__label">Способ чтения</h4>
+            <div class="segmented-control">
+              <input type="radio" name="reading-method" id="rm-letters" value="По буквам" disabled />
+              <label for="rm-letters">Буквами</label>
+              <input type="radio" name="reading-method" id="rm-syllables" value="По слогам" disabled />
+              <label for="rm-syllables">Слогами</label>
+              <input type="radio" name="reading-method" id="rm-words-syllables" value="Слова + слоги" disabled />
+              <label for="rm-words-syllables" title="Слова + слоги">Сл+слг</label>
+              <input type="radio" name="reading-method" id="rm-words" value="Целыми словами" checked disabled />
+              <label for="rm-words">Словами</label>
+            </div>
           </div>
 
           <div class="controls-divider"></div>
@@ -447,6 +451,12 @@
         <input type="number" id="modal-words-input" placeholder="Введите количество слов" min="0" max="9999" />
         <p class="muted" style="margin-top:4px">Слов/мин рассчитается автоматически при сохранении.</p>
       </div>
+    </div>
+
+    <!-- Smart Summary -->
+    <div id="modal-summary-section" class="modal-section" style="display:none">
+      <h4>Методический вывод</h4>
+      <p id="modal-summary-text" style="font-size:0.95rem; color:var(--blue); line-height:1.5; font-weight:500;"></p>
     </div>
 
     <!-- Teacher-only expressiveness -->

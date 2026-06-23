@@ -27,7 +27,8 @@ const App = (() => {
       grade:          null,
       textId:         null, textTitle:   null,
       elapsed:        0, wordCount: 0, wpm: 0,
-      errors:         { distortion: 0, accent: 0, ending: 0, regression: 0, syllabic: 0 },
+      readingMethod:  'Целыми словами',
+      errors:         { distortion: 0, accent: 0, ending: 0, regression: 0 },
       expressiveness: { ignoreSigns: false, monotone: false, wrongAccents: false },
       comprehension:  [],
     };
@@ -272,9 +273,9 @@ const App = (() => {
       if (el) el.textContent = '0';
     });
 
-    // Reset syllabic toggle
-    const syllabic = document.getElementById('toggle-syllabic');
-    if (syllabic) syllabic.checked = false;
+    // Reset reading method
+    const rmDefault = document.getElementById('rm-words');
+    if (rmDefault) rmDefault.checked = true;
 
     // Reset expressiveness
     ['exp-ignore-signs','exp-monotone','exp-wrong-accents'].forEach(id => {
@@ -326,9 +327,10 @@ const App = (() => {
       btn.disabled = (cs !== 'reading');
     });
 
-    // Syllabic toggle active only while reading
-    const syllabicToggle = document.getElementById('toggle-syllabic');
-    if (syllabicToggle) syllabicToggle.disabled = (cs !== 'reading');
+    // Reading method toggle active only while reading
+    document.querySelectorAll('input[name="reading-method"]').forEach(radio => {
+      radio.disabled = (cs !== 'reading');
+    });
 
     // ── Self mode panels ─────────────────────────────────────────────────
     UI[cs === 'setup' ? 'show' : 'hide'](document.getElementById('check-setup-self'));
@@ -379,8 +381,8 @@ const App = (() => {
       const el = document.getElementById(`counter-${k}`);
       if (el) el.textContent = '0';
     });
-    const syllabic = document.getElementById('toggle-syllabic');
-    if (syllabic) syllabic.checked = false;
+    const rmDefault = document.getElementById('rm-words');
+    if (rmDefault) rmDefault.checked = true;
 
     updateCheckUI();
 
@@ -424,8 +426,9 @@ const App = (() => {
       UI.showToast('Кликните на последнее слово перед анализом', 'error');
       return;
     }
-    // Collect syllabic from toggle (boolean → number)
-    state.session.errors.syllabic = document.getElementById('toggle-syllabic')?.checked ? 1 : 0;
+    // Collect reading method
+    const rmChecked = document.querySelector('input[name="reading-method"]:checked');
+    state.session.readingMethod = rmChecked ? rmChecked.value : 'Целыми словами';
     // Collect expressiveness
     state.session.expressiveness = {
       ignoreSigns:  document.getElementById('exp-ignore-signs')?.checked  ?? false,
@@ -606,8 +609,7 @@ const App = (() => {
       (r.errors?.distortion || 0) +
       (r.errors?.accent     || 0) +
       (r.errors?.ending     || 0) +
-      (r.errors?.regression || 0) +
-      (r.errors?.syllabic   || 0)
+      (r.errors?.regression || 0)
     );
 
     state.chartInstance = new Chart(ctx, {
