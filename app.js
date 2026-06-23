@@ -164,6 +164,15 @@ const App = (() => {
     window.print();
   }
 
+  function printBlank() {
+    const wrapper = document.getElementById('print-content-wrapper');
+    wrapper.innerHTML = '';
+    const div = document.createElement('div');
+    UI.renderPrintBlank(div);
+    wrapper.appendChild(div.firstElementChild);
+    window.print();
+  }
+
   function openAddTextModal() {
     document.getElementById('add-text-title').value = '';
     document.getElementById('add-text-content').value = '';
@@ -429,12 +438,9 @@ const App = (() => {
     // Collect reading method
     const rmChecked = document.querySelector('input[name="reading-method"]:checked');
     state.session.readingMethod = rmChecked ? rmChecked.value : 'Целыми словами';
-    // Collect expressiveness
-    state.session.expressiveness = {
-      ignoreSigns:  document.getElementById('exp-ignore-signs')?.checked  ?? false,
-      monotone:     document.getElementById('exp-monotone')?.checked      ?? false,
-      wrongAccents: document.getElementById('exp-wrong-accents')?.checked ?? false,
-    };
+    
+    // Expressiveness is now checked in the modal, we don't collect it here.
+    
     UI.showModal(state.session, state.texts);
   }
 
@@ -518,12 +524,98 @@ const App = (() => {
         session.wordCount = words;
         session.wpm = Math.round((words / Math.max(session.elapsed, 1)) * 60);
       }
+    } else if (session.mode === 'teacher') {
+      // Collect expressiveness from the modal checkboxes
+      session.expressiveness = {
+        ignoreSigns:  document.getElementById('exp-ignore-signs')?.checked  ?? false,
+        monotone:     document.getElementById('exp-monotone')?.checked      ?? false,
+        wrongAccents: document.getElementById('exp-wrong-accents')?.checked ?? false,
+      };
     }
     Assessment.saveResult({ ...session });
     UI.hideModal();
     UI.showToast('Результат сохранён!');
     setTimeout(() => switchTab('statistics'), 600);
   }
+
+  // ── MANUAL ENTRY ──────────────────────────────────────────────────────────
+  
+  function openManualEntry() {
+    const d = new Date();
+    // YYYY-MM-DD
+    const pad = n => n.toString().padStart(2, '0');
+    document.getElementById('manual-date').value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    
+    UI.renderStudentSelect(state.classes, document.getElementById('manual-student'));
+    UI.renderTextSelect(state.texts, document.getElementById('manual-text'));
+    
+    document.getElementById('manual-wpm').value = '';
+    document.getElementById('manual-method').value = 'Целыми словами';
+    document.getElementById('manual-err-dist').value = '0';
+    document.getElementById('manual-err-acc').value = '0';
+    document.getElementById('manual-err-end').value = '0';
+    document.getElementById('manual-err-reg').value = '0';
+    document.getElementById('manual-exp-ignore').checked = false;
+    document.getElementById('manual-exp-mono').checked = false;
+    document.getElementById('manual-exp-acc').checked = false;
+
+    document.getElementById('modal-manual-entry').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeManualEntry() {
+    document.getElementById('modal-manual-entry').classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  function saveManualEntry() {
+    const dateStr = document.getElementById('manual-date').value;
+    const studentVal = document.getElementById('manual-student').value;
+    const textId = document.getElementById('manual-text').value;
+    const wpm = parseInt(document.getElementById('manual-wpm').value);
+
+    if (!dateStr || !studentVal || !textId || isNaN(wpm)) {
+      UI.showToast('Заполните обязательные поля (Дата, Ученик, Текст, Скорость)', 'error');
+      return;
+    }
+
+    const [classId, studentId] = studentVal.split('::');
+    const cls = state.classes.find(c => c.id === classId);
+    const student = cls?.students.find(s => s.id === studentId);
+    const textData = state.texts.find(t => t.id === textId);
+
+    const record = {
+      mode: 'teacher',
+      date: new Date(dateStr).toISOString(),
+      classId,
+      className: cls.name,
+      grade: gradeFromClassName(cls.name),
+      studentId,
+      studentName: student.name,
+      textId,
+      textTitle: textData.title,
+      wpm,
+      elapsed: 60,
+      wordCount: wpm,
+      readingMethod: document.getElementById('manual-method').value,
+      errors: {
+        distortion: parseInt(document.getElementById('manual-err-dist').value) || 0,
+        accent: parseInt(document.getElementById('manual-err-acc').value) || 0,
+        ending: parseInt(document.getElementById('manual-err-end').value) || 0,
+        regression: parseInt(document.getElementById('manual-err-reg').value) || 0,
+      },
+      expressiveness: {
+        ignoreSigns: document.getElementById('manual-exp-ignore').checked,
+        monotone: document.getElementById('manual-exp-mono').checked,
+        wrongAccents: document.getElementById('manual-exp-acc').checked,
+      },
+      comprehension: [],
+    };
+
+    Assessment.saveResult(record);
+    closeManualEntry();
+    UI.showToast('Результат добавлен вручную');
+    renderStats();
 
   // ── STATISTICS TAB ────────────────────────────────────────────────────────
 
@@ -715,6 +807,7 @@ const App = (() => {
 
     // Print tab
     document.getElementById('btn-print-all')?.addEventListener('click', printAllTexts);
+    document.getElementById('btn-print-blank')?.addEventListener('click', printBlank);
     document.getElementById('btn-add-text')?.addEventListener('click', openAddTextModal);
     document.getElementById('btn-cancel-add-text')?.addEventListener('click', closeAddTextModal);
     document.getElementById('btn-cancel-add-text-2')?.addEventListener('click', closeAddTextModal);
@@ -768,6 +861,15 @@ const App = (() => {
       if (e.target.id === 'modal-add-text') closeAddTextModal();
     });
     document.getElementById('btn-cancel-chart')?.addEventListener('click', closeChart);
+    
+    // Manual entry modal
+    document.getElementById('btn-manual-entry')?.addEventListener('click', openManualEntry);
+    document.getElementById('btn-cancel-manual')?.addEventListener('click', closeManualEntry);
+    document.getElementById('btn-cancel-manual-2')?.addEventListener('click', closeManualEntry);
+    document.getElementById('btn-save-manual')?.addEventListener('click', saveManualEntry);
+    document.getElementById('modal-manual-entry')?.addEventListener('click', e => {
+      if (e.target.id === 'modal-manual-entry') closeManualEntry();
+    });
 
     document.getElementById('modal-questions')?.addEventListener('click', e => {
       const btn = e.target.closest('.btn-answer');

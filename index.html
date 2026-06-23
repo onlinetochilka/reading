@@ -88,6 +88,10 @@
           <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v5a2 2 0 002 2h1v2a1 1 0 001 1h8a1 1 0 001-1v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a1 1 0 00-1-1H6a1 1 0 00-1 1zm2 0h6v3H7V4zm-1 9a1 1 0 100 2 1 1 0 000-2zm10 0a1 1 0 100 2 1 1 0 000-2zm-8 3v-2h4v2H8z" clip-rule="evenodd"/></svg>
           Распечатать все
         </button>
+        <button class="btn btn--secondary" id="btn-print-blank" data-action="print-blank">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+          Бланк (пустой)
+        </button>
         <button class="btn btn--primary" id="btn-add-text" data-action="open-add-text">
           <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M10 2a1 1 0 00-1 1v6H3a1 1 0 100 2h6v6a1 1 0 102 0v-6h6a1 1 0 100-2h-6V3a1 1 0 00-1-1z"/></svg>
           Добавить свой текст
@@ -268,22 +272,7 @@
 
           <div class="controls-divider"></div>
 
-          <!-- Expressiveness -->
-          <div class="expressiveness-section">
-            <h4>Выразительность</h4>
-            <label class="checkbox-row">
-              <input type="checkbox" id="exp-ignore-signs" data-action="exp-ignore-signs" />
-              <span>Игнорирование знаков</span>
-            </label>
-            <label class="checkbox-row">
-              <input type="checkbox" id="exp-monotone" data-action="exp-monotone" />
-              <span>Монотонность</span>
-            </label>
-            <label class="checkbox-row">
-              <input type="checkbox" id="exp-wrong-accents" data-action="exp-wrong-accents" />
-              <span>Неверные ударения</span>
-            </label>
-          </div>
+          <!-- Expressiveness moved to post-analysis modal -->
 
           <!-- Words count -->
           <div id="words-count-display"></div>
@@ -374,6 +363,10 @@
         <select id="stats-filter-student" data-action="filter-stats-student" style="width:auto;" disabled>
           <option value="">Все ученики</option>
         </select>
+        <button class="btn btn--primary" id="btn-manual-entry" style="margin-right:auto;">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+          Внести вручную
+        </button>
         <button class="btn btn--secondary" id="btn-export-csv" data-action="export-csv">
           <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
           Экспорт CSV
@@ -462,7 +455,20 @@
     <!-- Teacher-only expressiveness -->
     <div id="modal-teacher-section" class="modal-section">
       <h4>Выразительность</h4>
-      <div id="modal-expressiveness-list" style="font-size:0.88rem; color:var(--blue); line-height:1.45;"></div>
+      <div class="expressiveness-section" style="margin-top: 12px;">
+        <label class="checkbox-row">
+          <input type="checkbox" id="exp-ignore-signs" />
+          <span>Игнорирование знаков</span>
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" id="exp-monotone" />
+          <span>Монотонность</span>
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" id="exp-wrong-accents" />
+          <span>Неверные ударения</span>
+        </label>
+      </div>
     </div>
 
     <!-- Comprehension -->
@@ -542,6 +548,88 @@
     </div>
     <div style="position: relative; height: 350px; width: 100%;">
       <canvas id="stats-chart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     MODAL: MANUAL ENTRY
+════════════════════════════════════════════════════════════════════════ -->
+<div id="modal-manual-entry" class="modal-overlay hidden" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal__header">
+      <h2 class="modal__title">Ручной ввод результата</h2>
+      <button class="btn-icon btn--ghost" id="btn-cancel-manual" title="Закрыть">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      </button>
+    </div>
+    
+    <div class="setup-panel">
+      <div class="form-group">
+        <label for="manual-date">Дата</label>
+        <input type="date" id="manual-date" />
+      </div>
+
+      <div class="form-group">
+        <label for="manual-student">Ученик (Класс)</label>
+        <select id="manual-student">
+          <option value="">— Выберите ученика —</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="manual-text">Текст</label>
+        <select id="manual-text">
+          <option value="">— Выберите текст —</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <div class="form-group" style="margin:0;">
+          <label for="manual-wpm">Скорость (сл/мин)</label>
+          <input type="number" id="manual-wpm" min="0" placeholder="0" />
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label for="manual-method">Способ чтения</label>
+          <select id="manual-method">
+            <option value="Целыми словами">Словами</option>
+            <option value="Слова + слоги">Слова + слоги</option>
+            <option value="По слогам">Слогами</option>
+            <option value="По буквам">Буквами</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top: 14px;">
+        <label>Ошибки (количество)</label>
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px;">
+          <div><label for="manual-err-dist" style="font-size:0.7rem; font-weight:normal; margin-bottom: 2px;">Искажения</label><input type="number" id="manual-err-dist" min="0" value="0" /></div>
+          <div><label for="manual-err-acc" style="font-size:0.7rem; font-weight:normal; margin-bottom: 2px;">Ударения</label><input type="number" id="manual-err-acc" min="0" value="0" /></div>
+          <div><label for="manual-err-end" style="font-size:0.7rem; font-weight:normal; margin-bottom: 2px;">Окончания</label><input type="number" id="manual-err-end" min="0" value="0" /></div>
+          <div><label for="manual-err-reg" style="font-size:0.7rem; font-weight:normal; margin-bottom: 2px;">Повторы</label><input type="number" id="manual-err-reg" min="0" value="0" /></div>
+        </div>
+      </div>
+
+      <div class="form-group expressiveness-section" style="margin-top: 14px;">
+        <label>Выразительность</label>
+        <label class="checkbox-row">
+          <input type="checkbox" id="manual-exp-ignore" />
+          <span>Игнорирование знаков</span>
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" id="manual-exp-mono" />
+          <span>Монотонность</span>
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" id="manual-exp-acc" />
+          <span>Неверные ударения</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="modal__actions">
+      <button class="btn btn--ghost" id="btn-cancel-manual-2">Отмена</button>
+      <button class="btn btn--primary" id="btn-save-manual">Сохранить</button>
     </div>
   </div>
 </div>

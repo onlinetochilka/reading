@@ -210,7 +210,7 @@ const UI = (() => {
         (r.errors?.ending     || 0) +
         (r.errors?.regression || 0);
 
-      const normResult = r.grade ? Assessment.compareWithNorm(r.wpm, r.grade) : 'unknown';
+      const normResult = r.grade ? Assessment.compareWithNorm(r.wpm, r.grade, r.date) : 'unknown';
       const wpmClass   =
         normResult === 'above'  ? 'wpm--above'  :
         normResult === 'below'  ? 'wpm--below'  :
@@ -289,18 +289,7 @@ const UI = (() => {
       const summaryText = document.getElementById('modal-summary-text');
       if (summaryText) summaryText.textContent = Assessment.generateSmartSummary(session);
 
-      const expContainer = document.getElementById('modal-expressiveness-list');
-      if (expContainer) {
-        const issues = [];
-        if (session.expressiveness?.ignoreSigns) issues.push('Игнорирование знаков препинания');
-        if (session.expressiveness?.monotone) issues.push('Монотонность');
-        if (session.expressiveness?.wrongAccents) issues.push('Неверные ударения');
-        if (issues.length > 0) {
-          expContainer.innerHTML = `<ul style="padding-left:16px; margin:0;">${issues.map(i => `<li>${i}</li>`).join('')}</ul>`;
-        } else {
-          expContainer.innerHTML = '<span style="color:var(--green)">Замечаний нет</span>';
-        }
-      }
+      // We rely on checkboxes now being physically in the modal, no dynamic list.
     } else {
       hide(teacherSection);
       hide(summarySection);
@@ -371,6 +360,32 @@ const UI = (() => {
             </div>
           </div>
         </div>
+      </div>
+    `;
+  }
+
+  function renderPrintBlank(container) {
+    container.innerHTML = `
+      <div class="print-preview card" style="max-width: 100%; margin: 0; padding: 20px;">
+        <h2 class="print-title" style="text-align:center; margin-bottom: 24px;">Бланк проверки техники чтения</h2>
+        <div style="margin-bottom: 16px;">
+          <span class="print-label">Класс: </span><span class="print-line print-line--short" style="width: 150px;"></span>
+          <span class="print-label" style="margin-left: 20px;">Дата: </span><span class="print-line print-line--short"></span>
+        </div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+          <thead>
+            <tr>
+              <th style="border: 1px solid #000; padding: 12px 8px; width: 30%; text-align: left;">ФИО ученика</th>
+              <th style="border: 1px solid #000; padding: 12px 8px; width: 10%; text-align: center;">Сл/мин</th>
+              <th style="border: 1px solid #000; padding: 12px 8px; width: 25%; text-align: left;">Ошибки (палочками)</th>
+              <th style="border: 1px solid #000; padding: 12px 8px; width: 20%; text-align: left;">Выразительность</th>
+              <th style="border: 1px solid #000; padding: 12px 8px; width: 15%; text-align: center;">Понимание</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${Array(20).fill('<tr><td style="border: 1px solid #000; height: 38px;"></td><td style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td></tr>').join('')}
+          </tbody>
+        </table>
       </div>
     `;
   }
@@ -493,6 +508,7 @@ const UI = (() => {
     showModal,
     hideModal,
     renderPrintPreview,
+    renderPrintBlank,
     renderStudentListForCheck,
     renderLibraryList,
   };

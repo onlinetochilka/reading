@@ -30,14 +30,27 @@ const Assessment = (() => {
     return month >= 9 ? 'h1' : 'h2';
   }
 
+  function getHalfForDate(dateStr) {
+    if (!dateStr) return getCurrentHalf();
+    const month = new Date(dateStr).getMonth() + 1;
+    return month >= 9 ? 'h1' : 'h2';
+  }
+
   /**
    * Get norm object { min, good } for grade + half.
    * @param {number} grade
    * @param {string} [half]  'h1' | 'h2' — defaults to current
    * @returns {{ min: number, good: number } | null}
    */
-  function getNorm(grade, half) {
-    const h = half || getCurrentHalf();
+  function getNorm(grade, halfOrDate) {
+    let h = 'h2';
+    if (halfOrDate === 'h1' || halfOrDate === 'h2') {
+      h = halfOrDate;
+    } else if (halfOrDate) {
+      h = getHalfForDate(halfOrDate);
+    } else {
+      h = getCurrentHalf();
+    }
     return readingNorms[grade]?.[h] ?? null;
   }
 
@@ -45,8 +58,8 @@ const Assessment = (() => {
    * Compare wpm against grade norm.
    * @returns {'above' | 'normal' | 'below' | 'unknown'}
    */
-  function compareWithNorm(wpm, grade) {
-    const norm = getNorm(grade);
+  function compareWithNorm(wpm, grade, dateStr) {
+    const norm = getNorm(grade, dateStr);
     if (!norm) return 'unknown';
     if (wpm >= norm.good) return 'above';
     if (wpm >= norm.min)  return 'normal';
@@ -70,7 +83,7 @@ const Assessment = (() => {
     const record  = {
       ...data,
       id:   String(Date.now()),
-      date: new Date().toISOString(),
+      date: data.date || new Date().toISOString(),
     };
     results.push(record);
     _save(results);
@@ -93,7 +106,7 @@ const Assessment = (() => {
     let summary = '';
     
     if (r.grade) {
-      const normResult = compareWithNorm(r.wpm, r.grade);
+      const normResult = compareWithNorm(r.wpm, r.grade, r.date);
       if (normResult === 'above') {
         summary += `Скорость чтения выше нормы (${r.wpm} сл/мин). `;
       } else if (normResult === 'normal') {
