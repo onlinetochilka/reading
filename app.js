@@ -662,6 +662,7 @@ const App = (() => {
     closeManualEntry();
     UI.showToast('Результат добавлен вручную');
     renderStats();
+  }
 
   // ── STATISTICS TAB ────────────────────────────────────────────────────────
 
