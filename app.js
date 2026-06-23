@@ -96,21 +96,39 @@ const App = (() => {
     });
   }
 
-  function createClass() {
-    const nameEl     = document.getElementById('class-name');
-    const studentsEl = document.getElementById('students-list');
-    const name       = nameEl.value.trim();
-    if (!name) { UI.showToast('Введите название класса', 'error'); return; }
+  function openAddClassModal() {
+    document.getElementById('class-name').value = '';
+    document.getElementById('students-list').value = '';
+    document.getElementById('btn-save-class').disabled = true;
+    document.getElementById('modal-add-class').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
 
-    const students = studentsEl.value.split('\n').map(s => s.trim()).filter(Boolean)
+  function closeAddClassModal() {
+    document.getElementById('modal-add-class').classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  function handleClassNameInput() {
+    const name = document.getElementById('class-name').value.trim();
+    document.getElementById('btn-save-class').disabled = !name;
+  }
+
+  function saveNewClass() {
+    const name = document.getElementById('class-name').value.trim();
+    if (!name) return;
+
+    const rawLines = document.getElementById('students-list').value.split('\n');
+    const students = rawLines
+      .map(s => s.replace(/^\s*[\d.)]+\s*/, '').trim())
+      .filter(Boolean)
       .map((n, i) => ({ id: `s${Date.now()}_${i}`, name: n }));
-    if (!students.length) { UI.showToast('Добавьте хотя бы одного ученика', 'error'); return; }
 
     state.classes.push({ id: `c${Date.now()}`, name, students });
     saveClasses();
-    nameEl.value = ''; studentsEl.value = '';
+    closeAddClassModal();
     renderStudents();
-    UI.showToast(`Класс «${name}» создан (${students.length} уч.)`);
+    UI.showToast(`Класс «${name}» сохранен (${students.length} уч.)`);
   }
 
   // ── LIBRARY TAB ───────────────────────────────────────────────────────────
@@ -252,6 +270,34 @@ const App = (() => {
   // ── CHECK TAB — shared ────────────────────────────────────────────────────
 
   function renderCheck() {
+    const container = document.getElementById('tab-check');
+    // Clear previous empty state if exists
+    const existingEmpty = container.querySelector('.empty-state');
+    if (existingEmpty) existingEmpty.remove();
+
+    if (!state.classes.length) {
+      document.querySelector('.mode-toggle')?.style.setProperty('display', 'none');
+      UI.hide(document.getElementById('check-teacher'));
+      UI.hide(document.getElementById('check-self'));
+      
+      const empty = UI.emptyState(
+        'Для запуска проверки нужен хотя бы один класс',
+        'Добавьте первый класс и список учеников',
+        'Добавить класс',
+        openAddClassModal
+      );
+      // Insert after mode toggle
+      const modeToggle = container.querySelector('.mode-toggle');
+      if (modeToggle) {
+        modeToggle.after(empty);
+      } else {
+        container.prepend(empty);
+      }
+      return;
+    }
+
+    document.querySelector('.mode-toggle')?.style.removeProperty('display');
+
     const mode = state.checkMode;
     document.getElementById('toggle-teacher')?.classList.toggle('active', mode === 'teacher');
     document.getElementById('toggle-self')?.classList.toggle('active',    mode === 'self');
@@ -654,6 +700,20 @@ const App = (() => {
   }
 
   function renderStats() {
+    const emptyTitle = document.querySelector('#stats-empty .empty-title');
+    const emptySub = document.querySelector('#stats-empty .empty-sub');
+    const emptyBtn = document.getElementById('btn-go-check');
+    
+    if (!state.classes.length) {
+      if (emptyTitle) emptyTitle.textContent = 'Здесь появится статистика после первых проверок';
+      if (emptySub) emptySub.textContent = 'Добавьте учеников, чтобы начать.';
+      if (emptyBtn) emptyBtn.style.display = 'none';
+    } else {
+      if (emptyTitle) emptyTitle.textContent = 'Результатов пока нет';
+      if (emptySub) emptySub.textContent = 'Проведите первую проверку, чтобы здесь появились данные';
+      if (emptyBtn) emptyBtn.style.display = '';
+    }
+
     const classFilter = document.getElementById('stats-filter-class')?.value;
     const studentFilter = document.getElementById('stats-filter-student')?.value;
 
@@ -796,13 +856,13 @@ const App = (() => {
     );
 
     // Base
-    document.getElementById('btn-create-class')?.addEventListener('click', createClass);
-    document.getElementById('students-list')?.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && e.ctrlKey) createClass();
-    });
-    document.getElementById('btn-toggle-create-class')?.addEventListener('click', () => {
-      const pnl = document.getElementById('create-class-panel');
-      if (pnl) pnl.style.display = pnl.style.display === 'none' ? 'block' : 'none';
+    document.getElementById('btn-open-add-class-modal')?.addEventListener('click', openAddClassModal);
+    document.getElementById('btn-cancel-add-class')?.addEventListener('click', closeAddClassModal);
+    document.getElementById('btn-cancel-add-class-2')?.addEventListener('click', closeAddClassModal);
+    document.getElementById('btn-save-class')?.addEventListener('click', saveNewClass);
+    document.getElementById('class-name')?.addEventListener('input', handleClassNameInput);
+    document.getElementById('modal-add-class')?.addEventListener('click', e => {
+      if (e.target.id === 'modal-add-class') closeAddClassModal();
     });
 
     // Print tab
