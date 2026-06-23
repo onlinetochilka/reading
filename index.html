@@ -108,6 +108,38 @@
       </div>
     </div>
 
+    <!-- Filters -->
+    <div class="card" style="margin-bottom: 16px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center;">
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <label for="lib-filter-class" class="muted" style="font-size:0.8rem">Класс</label>
+        <select id="lib-filter-class" data-action="lib-filter-class">
+          <option value="">Все</option>
+          <option value="1">1 класс</option>
+          <option value="2">2 класс</option>
+          <option value="3">3 класс</option>
+          <option value="4">4 класс</option>
+          <option value="5">5 класс</option>
+        </select>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <label for="lib-sort" class="muted" style="font-size:0.8rem">Сортировка</label>
+        <select id="lib-sort" data-action="lib-sort">
+          <option value="default">По умолчанию</option>
+          <option value="short">Сначала короткие</option>
+          <option value="long">Сначала длинные</option>
+        </select>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:200px;">
+        <label for="lib-search" class="muted" style="font-size:0.8rem">Поиск</label>
+        <div style="position:relative">
+          <input type="text" id="lib-search" placeholder="Поиск по названию..." data-action="lib-search" style="width:100%; padding-left:32px;" />
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--blue); opacity:0.5;">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
     <div id="library-list"></div>
 
     <!-- Print preview container -->

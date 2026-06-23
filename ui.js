@@ -438,6 +438,15 @@ const UI = (() => {
 
   function renderLibraryList(texts, container, onPrintClick) {
     container.innerHTML = '';
+    
+    if (!texts || !texts.length) {
+      container.appendChild(emptyState(
+        'Ничего не найдено',
+        'Попробуйте изменить параметры фильтрации'
+      ));
+      return;
+    }
+
     texts.forEach(t => {
       const card = document.createElement('div');
       card.className = 'card';

@@ -678,12 +678,29 @@ body.print-landscape .print-text {
    PRINT STYLES — Only #print-content is visible when printing
 ══════════════════════════════════════════════════════════════════════════ */
 @media print {
-  /* Blank everything except print-content */
+  /* Fix browser hang on print */
+  html, body {
+    height: auto !important;
+    min-height: auto !important;
+    display: block !important;
+  }
   body * { visibility: hidden; }
 
   /* Reveal only the printable block(s) */
   #print-content-wrapper,
-  #print-content-wrapper * { visibility: visible; }
+  #print-content-wrapper * { 
+    visibility: visible; 
+  }
+
+  /* Reset flex/grid to block to prevent infinite loop calculating page breaks */
+  #print-content-wrapper,
+  .print-preview,
+  .print-body-inner,
+  .print-footer,
+  .print-footer__field {
+    display: block !important;
+    height: auto !important;
+  }
 
   #print-content-wrapper {
     position: absolute;
@@ -699,7 +716,7 @@ body.print-landscape .print-text {
     border: none !important;
     border-radius: 0 !important;
     padding: 0 !important;
-    margin-bottom: 20px !important;
+    margin-bottom: 2cm !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
@@ -727,8 +744,9 @@ body.print-landscape .print-text {
     font-size: 9pt !important;
     color: #000 !important;
   }
-  .print-label { color: #444 !important; }
-  .print-line  { border-color: #999 !important; }
+  .print-footer__field { margin-bottom: 15px !important; }
+  .print-label { color: #444 !important; display: inline-block !important; min-width: 80px; }
+  .print-line  { border-color: #999 !important; display: inline-block !important; width: 200px; }
 
   /* Landscape 2-column mode */
   body.print-landscape .print-body-inner {

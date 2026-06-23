@@ -114,8 +114,29 @@ const App = (() => {
 
   // ── LIBRARY TAB ───────────────────────────────────────────────────────────
 
+  function getFilteredLibraryTexts() {
+    let filtered = [...state.texts];
+    const classFilter = document.getElementById('lib-filter-class')?.value;
+    const sortFilter = document.getElementById('lib-sort')?.value;
+    const searchFilter = document.getElementById('lib-search')?.value.toLowerCase().trim();
+
+    if (classFilter) {
+      filtered = filtered.filter(t => t.grade === parseInt(classFilter));
+    }
+    if (searchFilter) {
+      filtered = filtered.filter(t => t.title.toLowerCase().includes(searchFilter));
+    }
+    if (sortFilter === 'short') {
+      filtered.sort((a, b) => a.words - b.words);
+    } else if (sortFilter === 'long') {
+      filtered.sort((a, b) => b.words - a.words);
+    }
+    return filtered;
+  }
+
   function renderLibrary() {
-    UI.renderLibraryList(state.texts, document.getElementById('library-list'), printSingleText);
+    const textsToRender = getFilteredLibraryTexts();
+    UI.renderLibraryList(textsToRender, document.getElementById('library-list'), printSingleText);
     applyPrintLayout(state.printLayout);
   }
 
@@ -133,7 +154,8 @@ const App = (() => {
   function printAllTexts() {
     const wrapper = document.getElementById('print-content-wrapper');
     wrapper.innerHTML = '';
-    state.texts.forEach(t => {
+    const textsToPrint = getFilteredLibraryTexts();
+    textsToPrint.forEach(t => {
       const div = document.createElement('div');
       UI.renderPrintPreview(t, div);
       wrapper.appendChild(div.firstElementChild);
@@ -697,6 +719,11 @@ const App = (() => {
     document.getElementById('btn-save-new-text')?.addEventListener('click', saveNewText);
     document.getElementById('btn-layout-portrait')?.addEventListener('click',  () => setPrintLayout('portrait'));
     document.getElementById('btn-layout-landscape')?.addEventListener('click', () => setPrintLayout('landscape'));
+    
+    // Library filters
+    document.getElementById('lib-filter-class')?.addEventListener('change', renderLibrary);
+    document.getElementById('lib-sort')?.addEventListener('change', renderLibrary);
+    document.getElementById('lib-search')?.addEventListener('input', renderLibrary);
 
     // Check mode toggle
     document.getElementById('toggle-teacher')?.addEventListener('click', () => { state.checkMode = 'teacher'; renderCheck(); });
