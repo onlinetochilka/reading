@@ -67,13 +67,31 @@ const App = (() => {
 
   function renderStudents() {
     UI.renderClasses(state.classes, document.getElementById('classes-list'), {
-      onDelete: classId => {
+      onDeleteClass: classId => {
         if (!confirm('Удалить класс и всех учеников?')) return;
         state.classes = state.classes.filter(c => c.id !== classId);
         saveClasses();
         renderStudents();
         UI.showToast('Класс удалён');
       },
+      onDeleteStudent: (classId, studentId) => {
+        const cls = state.classes.find(c => c.id === classId);
+        if (!cls) return;
+        const studentIndex = cls.students.findIndex(s => s.id === studentId);
+        if (studentIndex === -1) return;
+        
+        const removedStudent = cls.students[studentIndex];
+        cls.students.splice(studentIndex, 1);
+        saveClasses();
+        renderStudents();
+        
+        // Undo pattern
+        UI.showToast(`Ученик удален`, 'info', () => {
+          cls.students.splice(studentIndex, 0, removedStudent);
+          saveClasses();
+          renderStudents();
+        });
+      }
     });
   }
 
@@ -203,11 +221,10 @@ const App = (() => {
 
   function renderCheck() {
     const mode = state.checkMode;
-    document.getElementById('toggle-teacher').classList.toggle('active', mode === 'teacher');
-    document.getElementById('toggle-self').classList.toggle('active',    mode === 'self');
+    document.getElementById('toggle-teacher')?.classList.toggle('active', mode === 'teacher');
+    document.getElementById('toggle-self')?.classList.toggle('active',    mode === 'self');
 
     // Populate selects
-    UI.renderStudentSelect(state.classes, document.getElementById('student-select'));
     UI.renderTextSelect(state.texts, document.getElementById('text-select-teacher'));
     UI.renderTextSelect(state.texts, document.getElementById('text-select-self'));
 
@@ -264,11 +281,8 @@ const App = (() => {
     const blurMsg = document.getElementById('blur-msg');
     if (blurMsg) { blurMsg.textContent = ''; blurMsg.classList.remove('visible'); }
 
-    // Reset student list column
-    UI.renderStudentListForCheck(null, null,
-      document.getElementById('check-student-list'),
-      document.getElementById('check-class-label')
-    );
+    // Reset student list column (render accordion)
+    UI.renderStudentListForCheck(state.classes, state.session?.studentId, document.getElementById('check-student-list'), onStudentAccordionSelect);
 
     updateCheckUI();
   }
@@ -307,33 +321,32 @@ const App = (() => {
 
   // ── CHECK TAB — TEACHER MODE ──────────────────────────────────────────────
 
-  function startTeacherCheck() {
-    const studentVal = document.getElementById('student-select').value;
-    const textId     = document.getElementById('text-select-teacher').value;
-    if (!studentVal) { UI.showToast('Выберите ученика', 'error'); return; }
-    if (!textId)     { UI.showToast('Выберите текст',   'error'); return; }
+  function onStudentAccordionSelect(classId, studentId) {
+    if (state.checkState !== 'setup') return; // Can't switch while reading
+    const cls = state.classes.find(c => c.id === classId);
+    const student = cls?.students.find(s => s.id === studentId);
+    if (student) {
+      state.session.classId = classId;
+      state.session.className = cls.name;
+      state.session.studentId = studentId;
+      state.session.studentName = student.name;
+      state.session.grade = gradeFromClassName(cls.name);
+    }
+  }
 
-    const [classId, studentId] = studentVal.split('::');
-    const cls      = state.classes.find(c => c.id === classId);
-    const student  = cls?.students.find(s => s.id === studentId);
+  function startTeacherCheck() {
+    const textId = document.getElementById('text-select-teacher').value;
+    if (!state.session.studentId) { UI.showToast('Выберите ученика в левой панели', 'error'); return; }
+    if (!textId) { UI.showToast('Выберите текст', 'error'); return; }
+
     const textData = state.texts.find(t => t.id === textId);
     if (!textData) { UI.showToast('Текст не найден', 'error'); return; }
 
     Object.assign(state.session, {
-      classId, className:   cls?.name    ?? '—',
-      studentId, studentName: student?.name ?? '—',
-      grade:    gradeFromClassName(cls?.name),
-      textId,   textTitle: textData.title,
+      textId, textTitle: textData.title,
     });
 
     state.checkState = 'reading';
-
-    // Populate left column with class students
-    UI.renderStudentListForCheck(
-      cls, studentId,
-      document.getElementById('check-student-list'),
-      document.getElementById('check-class-label')
-    );
 
     // Render clean text in right column
     UI.renderTextForReading(textData, document.getElementById('text-display-teacher'));
@@ -400,24 +413,7 @@ const App = (() => {
     UI.showModal(state.session, state.texts);
   }
 
-  // Student select → update student list column immediately
-  function onStudentSelectChange() {
-    const val = document.getElementById('student-select')?.value;
-    if (!val) {
-      UI.renderStudentListForCheck(null, null,
-        document.getElementById('check-student-list'),
-        document.getElementById('check-class-label')
-      );
-      return;
-    }
-    const [classId, studentId] = val.split('::');
-    const cls = state.classes.find(c => c.id === classId);
-    UI.renderStudentListForCheck(
-      cls, studentId,
-      document.getElementById('check-student-list'),
-      document.getElementById('check-class-label')
-    );
-  }
+
 
   // ── CHECK TAB — SELF MODE ─────────────────────────────────────────────────
 
@@ -506,8 +502,49 @@ const App = (() => {
 
   // ── STATISTICS TAB ────────────────────────────────────────────────────────
 
+  function updateStatsFilters() {
+    const classFilter = document.getElementById('stats-filter-class');
+    const studentFilter = document.getElementById('stats-filter-student');
+    if (!classFilter || !studentFilter) return;
+
+    // Populate classes
+    const savedClassVal = classFilter.value;
+    classFilter.innerHTML = '<option value="">Все классы</option>';
+    state.classes.forEach(c => {
+      classFilter.appendChild(new Option(c.name, c.id));
+    });
+    if (state.classes.some(c => c.id === savedClassVal)) {
+      classFilter.value = savedClassVal;
+    }
+
+    // Populate students based on class
+    const savedStudentVal = studentFilter.value;
+    studentFilter.innerHTML = '<option value="">Все ученики</option>';
+    if (classFilter.value) {
+      const cls = state.classes.find(c => c.id === classFilter.value);
+      if (cls) {
+        studentFilter.disabled = false;
+        cls.students.forEach(s => {
+          studentFilter.appendChild(new Option(s.name, s.id));
+        });
+        if (cls.students.some(s => s.id === savedStudentVal)) {
+          studentFilter.value = savedStudentVal;
+        }
+      }
+    } else {
+      studentFilter.disabled = true;
+    }
+  }
+
   function renderStats() {
-    UI.renderStatistics(Assessment.getResults());
+    const classFilter = document.getElementById('stats-filter-class')?.value;
+    const studentFilter = document.getElementById('stats-filter-student')?.value;
+
+    let results = Assessment.getResults();
+    if (classFilter)   results = results.filter(r => r.classId === classFilter);
+    if (studentFilter) results = results.filter(r => r.studentId === studentFilter);
+
+    UI.renderStatistics(results);
     document.querySelectorAll('.btn-del-result').forEach(btn => {
       btn.addEventListener('click', () => {
         if (!confirm('Удалить запись?')) return;
@@ -647,6 +684,10 @@ const App = (() => {
     document.getElementById('students-list')?.addEventListener('keydown', e => {
       if (e.key === 'Enter' && e.ctrlKey) createClass();
     });
+    document.getElementById('btn-toggle-create-class')?.addEventListener('click', () => {
+      const pnl = document.getElementById('create-class-panel');
+      if (pnl) pnl.style.display = pnl.style.display === 'none' ? 'block' : 'none';
+    });
 
     // Print tab
     document.getElementById('btn-print-all')?.addEventListener('click', printAllTexts);
@@ -666,9 +707,6 @@ const App = (() => {
     document.getElementById('btn-stop-teacher')?.addEventListener('click',    stopTeacherCheck);
     document.getElementById('btn-analyze-teacher')?.addEventListener('click', openTeacherAnalysis);
     document.getElementById('btn-reset-teacher')?.addEventListener('click',   resetCheck);
-
-    // Student select → update student list column
-    document.getElementById('student-select')?.addEventListener('change', onStudentSelectChange);
 
     // Error counter buttons
     ['distortion','accent','ending','regression'].forEach(key => {
@@ -712,6 +750,11 @@ const App = (() => {
     // Statistics
     document.getElementById('btn-export-csv')?.addEventListener('click', Assessment.exportCSV);
     document.getElementById('btn-go-check')?.addEventListener('click',   () => switchTab('check'));
+    document.getElementById('stats-filter-class')?.addEventListener('change', () => {
+      updateStatsFilters();
+      renderStats();
+    });
+    document.getElementById('stats-filter-student')?.addEventListener('change', renderStats);
   }
 
   // ── Init ──────────────────────────────────────────────────────────────────
@@ -719,6 +762,7 @@ const App = (() => {
   async function init() {
     loadClasses();
     await loadTexts();
+    updateStatsFilters();
     bindEvents();
     switchTab('students');
   }

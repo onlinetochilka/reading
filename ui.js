@@ -23,16 +23,23 @@ const UI = (() => {
 
   // ── Toast ─────────────────────────────────────────────────────────────────
 
-  function showToast(message, type = 'success') {
+  function showToast(message, type = 'success', undoCallback = null) {
     const t = document.createElement('div');
     t.className = `toast toast--${type}`;
     t.textContent = message;
+    if (undoCallback) {
+      const btn = document.createElement('button');
+      btn.className = 'toast-undo-btn';
+      btn.textContent = 'Отменить';
+      btn.onclick = () => { undoCallback(); t.remove(); };
+      t.appendChild(btn);
+    }
     document.body.appendChild(t);
     requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('toast--visible')));
     setTimeout(() => {
       t.classList.remove('toast--visible');
       setTimeout(() => t.remove(), 350);
-    }, 2800);
+    }, undoCallback ? 5000 : 2800);
   }
 
   // ── Empty State ───────────────────────────────────────────────────────────
@@ -54,7 +61,7 @@ const UI = (() => {
 
   // ── Base Tab ──────────────────────────────────────────────────────────────
 
-  function renderClasses(classes, container, { onDelete } = {}) {
+  function renderClasses(classes, container, { onDeleteClass, onDeleteStudent } = {}) {
     container.innerHTML = '';
     if (!classes.length) {
       container.appendChild(emptyState(
@@ -73,17 +80,28 @@ const UI = (() => {
             <h3 class="class-card__name">${escapeHtml(cls.name)}</h3>
             <span class="badge">${cls.students.length} уч.</span>
           </div>
-          <button class="btn-icon btn--danger" data-class-id="${cls.id}" title="Удалить класс" aria-label="Удалить">
+          <button class="btn-icon btn--danger" data-action="delete-class" data-class-id="${cls.id}" title="Удалить класс" aria-label="Удалить">
             <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zm-2 7a1 1 0 012 0v4a1 1 0 11-2 0V9zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V9a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
           </button>
         </div>
         <div class="class-card__students">
-          ${cls.students.map((s, i) => `<span class="student-chip">${i + 1}. ${escapeHtml(s.name)}</span>`).join('')}
+          ${cls.students.map((s, i) => `
+            <span class="student-chip" tabindex="0">
+              ${i + 1}. ${escapeHtml(s.name)}
+              <button class="btn-del-chip" data-action="delete-student" data-class-id="${cls.id}" data-student-id="${s.id}" title="Удалить ученика">×</button>
+            </span>`).join('')}
         </div>
       `;
-      if (onDelete) {
-        card.querySelector('.btn-icon').addEventListener('click', e => {
-          onDelete(e.currentTarget.dataset.classId);
+      if (onDeleteClass) {
+        card.querySelector('.btn--danger').addEventListener('click', e => {
+          onDeleteClass(e.currentTarget.dataset.classId);
+        });
+      }
+      if (onDeleteStudent) {
+        card.querySelectorAll('.btn-del-chip').forEach(btn => {
+          btn.addEventListener('click', e => {
+            onDeleteStudent(e.currentTarget.dataset.classId, e.currentTarget.dataset.studentId);
+          });
         });
       }
       container.appendChild(card);
@@ -264,6 +282,18 @@ const UI = (() => {
     const teacherSection = document.getElementById('modal-teacher-section');
     if (session.mode === 'teacher') {
       show(teacherSection);
+      const expContainer = document.getElementById('modal-expressiveness-list');
+      if (expContainer) {
+        const issues = [];
+        if (session.expressiveness?.ignoreSigns) issues.push('Игнорирование знаков препинания');
+        if (session.expressiveness?.monotone) issues.push('Монотонность');
+        if (session.expressiveness?.wrongAccents) issues.push('Неверные ударения');
+        if (issues.length > 0) {
+          expContainer.innerHTML = `<ul style="padding-left:16px; margin:0;">${issues.map(i => `<li>${i}</li>`).join('')}</ul>`;
+        } else {
+          expContainer.innerHTML = '<span style="color:var(--green)">Замечаний нет</span>';
+        }
+      }
     } else {
       hide(teacherSection);
     }
@@ -283,8 +313,8 @@ const UI = (() => {
         row.innerHTML = `
           <span class="question-text">${i + 1}. ${escapeHtml(q.q)}</span>
           <div class="question-btns">
-            <button class="btn-answer btn-yes${cur?.correct === true  ? ' active' : ''}" data-qi="${i}" data-ans="true"  title="Верно">👍</button>
-            <button class="btn-answer btn-no ${cur?.correct === false ? ' active' : ''}" data-qi="${i}" data-ans="false" title="Неверно">👎</button>
+            <button class="btn-answer btn-yes${cur?.correct === true  ? ' active' : ''}" data-action="answer-yes" data-qi="${i}" data-ans="true"  title="Верно">Верно</button>
+            <button class="btn-answer btn-no ${cur?.correct === false ? ' active' : ''}" data-action="answer-no" data-qi="${i}" data-ans="false" title="Неверно">Неверно</button>
           </div>
         `;
         qContainer.appendChild(row);
@@ -340,25 +370,67 @@ const UI = (() => {
   // ── Student List for Check Column ─────────────────────────────────────────
 
   /**
-   * Render the student list in the left check column.
-   * @param {object|null} cls              - class object
+   * Render the student list in the left check column as Accordions.
+   * @param {Array}       classes          - all classes array
    * @param {string|null} currentStudentId - id of selected student
    * @param {Element}     container
-   * @param {Element}     labelEl          - the h4 label element to update
+   * @param {Function}    onSelect         - callback when student is selected
    */
-  function renderStudentListForCheck(cls, currentStudentId, container, labelEl) {
+  function renderStudentListForCheck(classes, currentStudentId, container, onSelect) {
     container.innerHTML = '';
-    if (!cls) {
-      container.innerHTML = '<p class="muted" style="font-size:0.8rem;padding:4px 0">Выберите ученика</p>';
-      if (labelEl) labelEl.textContent = 'Список класса';
+    if (!classes || !classes.length) {
+      container.innerHTML = '<p class="muted" style="font-size:0.8rem;padding:4px 0">Создайте класс на вкладке «Ученики»</p>';
       return;
     }
-    if (labelEl) labelEl.textContent = cls.name;
-    cls.students.forEach(s => {
-      const el = document.createElement('div');
-      el.className = 'student-check-item' + (s.id === currentStudentId ? ' current' : '');
-      el.textContent = s.name;
-      container.appendChild(el);
+    
+    classes.forEach((cls, idx) => {
+      const item = document.createElement('div');
+      item.className = 'accordion-item';
+      
+      const isSelectedClass = cls.students.some(s => s.id === currentStudentId);
+      // Open first class by default if none selected, or open the selected one
+      const isOpen = isSelectedClass || (!currentStudentId && idx === 0);
+      if (isOpen) item.classList.add('open');
+      
+      item.innerHTML = `
+        <div class="accordion-header" data-action="toggle-accordion" tabindex="0">
+          <span>${escapeHtml(cls.name)}</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" style="transition:transform 0.3s; transform: rotate(${isOpen ? '180deg' : '0deg'})"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </div>
+        <div class="accordion-content">
+          ${cls.students.map(s => `
+            <div class="student-check-item ${s.id === currentStudentId ? 'current' : ''}" data-action="select-student" data-class-id="${cls.id}" data-student-id="${s.id}" tabindex="0">
+              ${escapeHtml(s.name)}
+            </div>
+          `).join('')}
+        </div>
+      `;
+      
+      item.querySelector('.accordion-header').addEventListener('click', (e) => {
+        const currentlyOpen = item.classList.contains('open');
+        // Close all
+        container.querySelectorAll('.accordion-item').forEach(i => {
+          i.classList.remove('open');
+          i.querySelector('.chevron').style.transform = 'rotate(0deg)';
+        });
+        if (!currentlyOpen) {
+          item.classList.add('open');
+          item.querySelector('.chevron').style.transform = 'rotate(180deg)';
+        }
+      });
+      
+      if (onSelect) {
+        item.querySelectorAll('.student-check-item').forEach(el => {
+          el.addEventListener('click', () => {
+            onSelect(el.dataset.classId, el.dataset.studentId);
+            // Visual update
+            container.querySelectorAll('.student-check-item').forEach(i => i.classList.remove('current'));
+            el.classList.add('current');
+          });
+        });
+      }
+      
+      container.appendChild(item);
     });
   }
 

@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Точилка — Проверка техники чтения</title>
+  <!-- Yandex Tag Manager Stub -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="https://raw.githubusercontent.com/onlinetochilka/theme/main/tochilka-theme.css" />
   <link rel="stylesheet" href="styles.css" />
@@ -26,10 +30,10 @@
 
   <!-- ── Navigation ─────────────────────────────────────────────────────── -->
   <nav class="tabs" role="tablist">
-    <button class="tab-btn active" data-tab="students"   role="tab">Ученики</button>
-    <button class="tab-btn"        data-tab="library"    role="tab">Библиотека</button>
-    <button class="tab-btn"        data-tab="check"      role="tab">Проверка</button>
-    <button class="tab-btn"        data-tab="statistics" role="tab">Статистика</button>
+    <button class="tab-btn active" data-tab="students"   data-action="tab-students" role="tab">Ученики</button>
+    <button class="tab-btn"        data-tab="library"    data-action="tab-library" role="tab">Библиотека</button>
+    <button class="tab-btn"        data-tab="check"      data-action="tab-check" role="tab">Проверка</button>
+    <button class="tab-btn"        data-tab="statistics" data-action="tab-statistics" role="tab">Статистика</button>
   </nav>
 
 
@@ -38,7 +42,16 @@
   ════════════════════════════════════════════════════════════════════════ -->
   <div id="tab-students" class="tab-content active" role="tabpanel">
 
-    <div class="card" style="margin-bottom:16px">
+    <div class="section-header">
+      <h2>Мои классы</h2>
+      <button class="btn btn--primary" id="btn-toggle-create-class" data-action="toggle-create-class">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M10 2a1 1 0 00-1 1v6H3a1 1 0 100 2h6v6a1 1 0 102 0v-6h6a1 1 0 100-2h-6V3a1 1 0 00-1-1z"/></svg>
+        Добавить класс
+      </button>
+    </div>
+    <div id="classes-list"></div>
+
+    <div class="card" id="create-class-panel" style="display:none; margin-bottom:16px;">
       <h2 style="margin-bottom:18px">Создать класс</h2>
       <div class="setup-panel">
         <div class="row">
@@ -53,15 +66,12 @@
                     placeholder="Иванов Иван&#10;Петрова Мария&#10;Сидоров Алексей&#10;..."
                     rows="6"></textarea>
         </div>
-        <button class="btn btn--primary" id="btn-create-class">
+        <button class="btn btn--primary" id="btn-create-class" data-action="create-class">
           <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M10 2a1 1 0 00-1 1v6H3a1 1 0 100 2h6v6a1 1 0 102 0v-6h6a1 1 0 100-2h-6V3a1 1 0 00-1-1z"/></svg>
           Создать класс
         </button>
       </div>
     </div>
-
-    <div class="section-header"><h2>Мои классы</h2></div>
-    <div id="classes-list"></div>
 
   </div>
 
@@ -74,11 +84,11 @@
     <div class="section-header">
       <h2>Библиотека текстов</h2>
       <div style="display:flex; gap:10px;">
-        <button class="btn btn--secondary" id="btn-print-all">
+        <button class="btn btn--secondary" id="btn-print-all" data-action="print-all-texts">
           <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v5a2 2 0 002 2h1v2a1 1 0 001 1h8a1 1 0 001-1v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a1 1 0 00-1-1H6a1 1 0 00-1 1zm2 0h6v3H7V4zm-1 9a1 1 0 100 2 1 1 0 000-2zm10 0a1 1 0 100 2 1 1 0 000-2zm-8 3v-2h4v2H8z" clip-rule="evenodd"/></svg>
           Распечатать все
         </button>
-        <button class="btn btn--primary" id="btn-add-text">
+        <button class="btn btn--primary" id="btn-add-text" data-action="open-add-text">
           <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M10 2a1 1 0 00-1 1v6H3a1 1 0 100 2h6v6a1 1 0 102 0v-6h6a1 1 0 100-2h-6V3a1 1 0 00-1-1z"/></svg>
           Добавить свой текст
         </button>
@@ -89,10 +99,10 @@
     <div class="print-layout-bar card" style="margin-bottom: 16px;">
       <span class="print-layout-label">Макет печати:</span>
       <div class="mode-toggle" style="margin-bottom:0">
-        <button class="toggle-btn active" id="btn-layout-portrait">
+        <button class="toggle-btn active" id="btn-layout-portrait" data-action="print-layout-portrait">
           Книжная (А4)
         </button>
-        <button class="toggle-btn" id="btn-layout-landscape">
+        <button class="toggle-btn" id="btn-layout-landscape" data-action="print-layout-landscape">
           Альбомная (2 кол.)
         </button>
       </div>
@@ -113,8 +123,8 @@
 
     <!-- Mode Toggle -->
     <div class="mode-toggle" style="margin-bottom:16px">
-      <button class="toggle-btn active" id="toggle-teacher">По бумаге (Учитель)</button>
-      <button class="toggle-btn"        id="toggle-self">С экрана (Самопроверка)</button>
+      <button class="toggle-btn active" id="toggle-teacher" data-action="mode-teacher">По бумаге (Учитель)</button>
+      <button class="toggle-btn"        id="toggle-self" data-action="mode-self">С экрана (Самопроверка)</button>
     </div>
 
     <!-- ══════════════════════════════════════════════════════════════════
@@ -126,37 +136,44 @@
       <div class="card check-setup-bar">
         <div class="check-setup-bar__fields">
           <div class="form-group form-group--inline">
-            <label for="student-select">Ученик</label>
-            <select id="student-select">
-              <option value="">— Выберите ученика —</option>
-            </select>
-          </div>
-          <div class="form-group form-group--inline">
             <label for="text-select-teacher">Текст</label>
-            <select id="text-select-teacher">
+            <select id="text-select-teacher" data-action="select-text-teacher">
               <option value="">— Выберите текст —</option>
             </select>
           </div>
         </div>
-        <button class="btn btn--ghost btn-sm" id="btn-reset-teacher">
+        <button class="btn btn--ghost btn-sm" id="btn-reset-teacher" data-action="reset-teacher-check">
           <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
-          Сначала
+          Сбросить таймер
         </button>
       </div>
 
       <!-- 3-column reading grid -->
       <div class="check-reading-grid">
 
-        <!-- ── Col 1: Student list ── -->
+        <!-- ── Col 1: Class Accordion ── -->
         <div class="card check-col check-col--students">
-          <h4 class="check-col__label" id="check-class-label">Список класса</h4>
-          <div id="check-student-list" class="student-check-list">
-            <p class="muted" style="font-size:0.8rem;padding:4px 0">Выберите ученика</p>
+          <h4 class="check-col__label" id="check-class-label">Классы</h4>
+          <div id="check-student-list" class="student-check-list accordion-list">
+            <p class="muted" style="font-size:0.8rem;padding:4px 0">Создайте класс</p>
           </div>
         </div>
 
-        <!-- ── Col 2: Timer + controls ── -->
-        <div class="card check-col check-col--controls">
+        <!-- ── Col 2: Reading text ── -->
+        <div class="card check-col check-col--text">
+          <p id="text-read-hint" class="muted" style="font-size:0.82rem; margin-bottom:12px">
+            После «Стоп» кликните на <strong>последнее слово</strong>, которое прочёл ученик
+          </p>
+          <div id="text-display-teacher" class="text-container">
+            <div class="text-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="36" height="36" stroke-width="1.2"><path d="M9 12h6M9 16h6M17 2H7a2 2 0 00-2 2v16a2 2 0 002 2h10a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg>
+              <p>Выберите ученика и текст, затем нажмите «Старт»</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Col 3: Timer + controls ── -->
+        <div class="card check-col check-col--controls sticky-panel">
 
           <!-- Timer -->
           <div class="timer-block">
@@ -166,15 +183,15 @@
 
           <!-- Button row -->
           <div class="control-btn-row">
-            <button class="btn btn--start control-btn" id="btn-start-teacher">
+            <button class="btn btn--start control-btn" id="btn-start-teacher" data-action="start-teacher-check">
               <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
               Старт
             </button>
-            <button class="btn btn--stop control-btn" id="btn-stop-teacher" disabled>
+            <button class="btn btn--stop control-btn" id="btn-stop-teacher" data-action="stop-teacher-check" disabled>
               <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd"/></svg>
               Стоп
             </button>
-            <button class="btn btn--analyze control-btn" id="btn-analyze-teacher" disabled>
+            <button class="btn btn--analyze control-btn" id="btn-analyze-teacher" data-action="analyze-teacher-check" disabled>
               <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9zM4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
               Анализ
             </button>
@@ -184,19 +201,19 @@
 
           <!-- Error counters (4 types as tap-buttons) -->
           <div class="error-counters">
-            <button class="error-counter-btn" id="btn-distortion" disabled>
+            <button class="error-counter-btn" id="btn-distortion" data-action="error-distortion" disabled>
               Искажение
               <span class="counter-val" id="counter-distortion">0</span>
             </button>
-            <button class="error-counter-btn" id="btn-accent" disabled>
+            <button class="error-counter-btn" id="btn-accent" data-action="error-accent" disabled>
               Ударение
               <span class="counter-val" id="counter-accent">0</span>
             </button>
-            <button class="error-counter-btn" id="btn-ending" disabled>
+            <button class="error-counter-btn" id="btn-ending" data-action="error-ending" disabled>
               Окончание
               <span class="counter-val" id="counter-ending">0</span>
             </button>
-            <button class="error-counter-btn" id="btn-regression" disabled>
+            <button class="error-counter-btn" id="btn-regression" data-action="error-regression" disabled>
               Повтор
               <span class="counter-val" id="counter-regression">0</span>
             </button>
@@ -206,7 +223,7 @@
           <div class="syllabic-row">
             <span class="syllabic-label">Слоговое чтение</span>
             <label class="ui-switch" title="Отметить слоговое чтение">
-              <input type="checkbox" id="toggle-syllabic" disabled />
+              <input type="checkbox" id="toggle-syllabic" data-action="toggle-syllabic" disabled />
               <span class="ui-switch__track">
                 <span class="ui-switch__thumb"></span>
               </span>
@@ -219,15 +236,15 @@
           <div class="expressiveness-section">
             <h4>Выразительность</h4>
             <label class="checkbox-row">
-              <input type="checkbox" id="exp-ignore-signs" />
+              <input type="checkbox" id="exp-ignore-signs" data-action="exp-ignore-signs" />
               <span>Игнорирование знаков</span>
             </label>
             <label class="checkbox-row">
-              <input type="checkbox" id="exp-monotone" />
+              <input type="checkbox" id="exp-monotone" data-action="exp-monotone" />
               <span>Монотонность</span>
             </label>
             <label class="checkbox-row">
-              <input type="checkbox" id="exp-wrong-accents" />
+              <input type="checkbox" id="exp-wrong-accents" data-action="exp-wrong-accents" />
               <span>Неверные ударения</span>
             </label>
           </div>
@@ -236,19 +253,6 @@
           <div id="words-count-display"></div>
 
         </div><!-- /check-col--controls -->
-
-        <!-- ── Col 3: Reading text ── -->
-        <div class="card check-col check-col--text">
-          <p id="text-read-hint" class="muted" style="font-size:0.82rem; margin-bottom:12px">
-            После «Стоп» кликните на <strong>последнее слово</strong>, которое прочёл ученик
-          </p>
-          <div id="text-display-teacher" class="text-container">
-            <div class="text-placeholder">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="36" height="36" stroke-width="1.2"><path d="M9 12h6M9 16h6M17 2H7a2 2 0 00-2 2v16a2 2 0 002 2h10a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg>
-              <p>Выберите ученика и текст, затем нажмите «Старт»</p>
-            </div>
-          </div>
-        </div>
 
       </div><!-- /check-reading-grid -->
     </div><!-- /check-teacher -->
@@ -266,13 +270,13 @@
             <div class="row">
               <div class="form-group">
                 <label for="text-select-self">Текст</label>
-                <select id="text-select-self">
+                <select id="text-select-self" data-action="select-text-self">
                   <option value="">— Выберите текст —</option>
                 </select>
               </div>
               <div class="form-group">
                 <label for="duration-select">Режим времени</label>
-                <select id="duration-select">
+                <select id="duration-select" data-action="select-duration-self">
                   <option value="60">1 минута</option>
                   <option value="unlimited">Без лимита</option>
                 </select>
@@ -280,7 +284,7 @@
             </div>
             <div class="form-group">
               <label for="grade-select-self">Мой класс <span class="muted">(необязательно)</span></label>
-              <select id="grade-select-self">
+              <select id="grade-select-self" data-action="select-grade-self">
                 <option value="">— не указан —</option>
                 <option value="1">1 класс</option>
                 <option value="2">2 класс</option>
@@ -290,7 +294,7 @@
               </select>
             </div>
           </div>
-          <button class="btn btn--start" id="btn-start-self">
+          <button class="btn btn--start" id="btn-start-self" data-action="start-self">
             <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
             Начать чтение
           </button>
@@ -300,10 +304,10 @@
       <div id="check-reading-self" style="display:none">
         <div class="card" style="margin-bottom:12px">
           <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center">
-            <button class="btn btn--primary" id="btn-finish-self" style="display:none">
+            <button class="btn btn--primary" id="btn-finish-self" data-action="finish-self" style="display:none">
               Я закончил читать
             </button>
-            <button class="btn btn--ghost" id="btn-reset-self">Сначала</button>
+            <button class="btn btn--ghost" id="btn-reset-self" data-action="reset-self">Сбросить таймер</button>
           </div>
           <p class="muted" style="margin-top:10px; font-size:0.8rem">
             Читайте в своём темпе. Таймер работает в фоне.
@@ -327,10 +331,18 @@
 
     <div class="section-header">
       <h2>Результаты проверок</h2>
-      <button class="btn btn--secondary" id="btn-export-csv">
-        <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-        Экспорт CSV
-      </button>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <select id="stats-filter-class" data-action="filter-stats-class" style="width:auto;">
+          <option value="">Все классы</option>
+        </select>
+        <select id="stats-filter-student" data-action="filter-stats-student" style="width:auto;" disabled>
+          <option value="">Все ученики</option>
+        </select>
+        <button class="btn btn--secondary" id="btn-export-csv" data-action="export-csv">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          Экспорт CSV
+        </button>
+      </div>
     </div>
 
     <div id="stats-empty" class="empty-state" style="display:none">
@@ -380,7 +392,7 @@
           <span id="modal-elapsed">0:00</span>
         </p>
       </div>
-      <button class="btn-icon btn--ghost" id="btn-cancel-modal" title="Закрыть">
+      <button class="btn-icon btn--ghost" id="btn-cancel-modal" data-action="close-modal" title="Закрыть">
         <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
       </button>
     </div>
@@ -408,7 +420,7 @@
     <!-- Teacher-only expressiveness -->
     <div id="modal-teacher-section" class="modal-section">
       <h4>Выразительность</h4>
-      <p class="muted" style="font-size:0.83rem">Значения зафиксированы на панели проверки.</p>
+      <div id="modal-expressiveness-list" style="font-size:0.88rem; color:var(--blue); line-height:1.45;"></div>
     </div>
 
     <!-- Comprehension -->
@@ -418,8 +430,8 @@
     </div>
 
     <div class="modal__actions">
-      <button class="btn btn--ghost" onclick="UI.hideModal()">Отмена</button>
-      <button class="btn btn--primary" id="btn-save-result">
+      <button class="btn btn--ghost" id="btn-cancel-modal-2" data-action="close-modal">Отмена</button>
+      <button class="btn btn--primary" id="btn-save-result" data-action="save-result">
         <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
         Сохранить результат
       </button>
@@ -492,6 +504,7 @@
   </div>
 </div>
 
+<script src="analytics.js"></script>
 <script src="timer.js"></script>
 <script src="assessment.js"></script>
 <script src="ui.js"></script>
