@@ -17,6 +17,7 @@ const App = (() => {
     printLayout:  'portrait', // 'portrait' | 'landscape'
     session:      null,
     chartInstance: null,
+    checkedStudents: new Set(),
   };
 
   function freshSession(mode) {
@@ -173,7 +174,12 @@ const App = (() => {
   function printAllTexts() {
     const wrapper = document.getElementById('print-content-wrapper');
     wrapper.innerHTML = '';
-    const textsToPrint = getFilteredLibraryTexts();
+    
+    const checked = Array.from(document.querySelectorAll('.lib-print-cb:checked')).map(cb => cb.value);
+    const textsToPrint = checked.length > 0 
+      ? state.texts.filter(t => checked.includes(t.id))
+      : getFilteredLibraryTexts();
+      
     textsToPrint.forEach(t => {
       const div = document.createElement('div');
       UI.renderPrintPreview(t, div);
@@ -360,7 +366,12 @@ const App = (() => {
     if (blurMsg) { blurMsg.textContent = ''; blurMsg.classList.remove('visible'); }
 
     // Reset student list column (render accordion)
-    UI.renderStudentListForCheck(state.classes, state.session?.studentId, document.getElementById('check-student-list'), onStudentAccordionSelect);
+    const activeClasses = state.classes.map(cls => ({
+      ...cls,
+      students: cls.students.filter(s => !state.checkedStudents.has(`${cls.id}::${s.id}`))
+    })).filter(cls => cls.students.length > 0);
+
+    UI.renderStudentListForCheck(activeClasses, state.session?.studentId, document.getElementById('check-student-list'), onStudentAccordionSelect);
 
     updateCheckUI();
   }
@@ -575,13 +586,17 @@ const App = (() => {
       session.expressiveness = {
         ignoreSigns:  document.getElementById('exp-ignore-signs')?.checked  ?? false,
         monotone:     document.getElementById('exp-monotone')?.checked      ?? false,
-        wrongAccents: document.getElementById('exp-wrong-accents')?.checked ?? false,
       };
     }
     Assessment.saveResult({ ...session });
+    
+    if (session.classId && session.studentId) {
+      state.checkedStudents.add(`${session.classId}::${session.studentId}`);
+    }
+
     UI.hideModal();
     UI.showToast('Результат сохранён!');
-    setTimeout(() => switchTab('statistics'), 600);
+    resetCheck();
   }
 
   // ── MANUAL ENTRY ──────────────────────────────────────────────────────────
@@ -603,7 +618,6 @@ const App = (() => {
     document.getElementById('manual-err-reg').value = '0';
     document.getElementById('manual-exp-ignore').checked = false;
     document.getElementById('manual-exp-mono').checked = false;
-    document.getElementById('manual-exp-acc').checked = false;
 
     document.getElementById('modal-manual-entry').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -653,7 +667,6 @@ const App = (() => {
       expressiveness: {
         ignoreSigns: document.getElementById('manual-exp-ignore').checked,
         monotone: document.getElementById('manual-exp-mono').checked,
-        wrongAccents: document.getElementById('manual-exp-acc').checked,
       },
       comprehension: [],
     };

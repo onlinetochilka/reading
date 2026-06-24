@@ -233,7 +233,12 @@ const UI = (() => {
         </td>
         <td>${escapeHtml(r.className  || '—')}</td>
         <td>${escapeHtml(r.textTitle  || '—')}</td>
-        <td class="wpm-cell ${wpmClass}">${r.wpm || 0}</td>
+        <td class="wpm-cell">
+          <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
+            ${r.wpm || 0}
+            ${normResult !== 'unknown' ? `<span class="norm-dot norm-dot--${normResult}"></span>` : ''}
+          </div>
+        </td>
         <td>${totalErrors > 0 ? totalErrors : '—'}</td>
         <td>${comp}</td>
         <td>${modeLabel}</td>
@@ -343,22 +348,7 @@ const UI = (() => {
       <div class="print-preview card">
         <div class="print-body-inner">
           <h2 class="print-title">${escapeHtml(textData.title)}</h2>
-          <p class="print-meta">${textData.grade} класс &nbsp;·&nbsp; ~${textData.words} слов</p>
-          <div class="print-text">${escapeHtml(textData.content)}</div>
-          <div class="print-footer">
-            <div class="print-footer__field">
-              <span class="print-label">Ученик</span>
-              <span class="print-line"></span>
-            </div>
-            <div class="print-footer__field">
-              <span class="print-label">Дата</span>
-              <span class="print-line print-line--short"></span>
-            </div>
-            <div class="print-footer__field">
-              <span class="print-label">Слов/мин</span>
-              <span class="print-line print-line--short"></span>
-            </div>
-          </div>
+          <div class="print-text" style="white-space: pre-wrap;">${escapeHtml(textData.content)}</div>
         </div>
       </div>
     `;
@@ -367,23 +357,31 @@ const UI = (() => {
   function renderPrintBlank(container) {
     container.innerHTML = `
       <div class="print-preview card" style="max-width: 100%; margin: 0; padding: 20px;">
-        <h2 class="print-title" style="text-align:center; margin-bottom: 24px;">Бланк проверки техники чтения</h2>
-        <div style="margin-bottom: 16px;">
-          <span class="print-label">Класс: </span><span class="print-line print-line--short" style="width: 150px;"></span>
-          <span class="print-label" style="margin-left: 20px;">Дата: </span><span class="print-line print-line--short"></span>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 24px;">
+          <h2 class="print-title" style="margin:0;">Бланк проверки техники чтения</h2>
+          <img src="${LOGO}" alt="Точилка" style="width: 32px; opacity: 0.8;" />
+        </div>
+        <div style="display:flex; gap: 30px; margin-bottom: 20px;">
+          <div style="display:flex; align-items:baseline; flex:1;">
+            <span class="print-label">Класс: </span>
+            <span class="print-line"></span>
+          </div>
+          <div style="display:flex; align-items:baseline; flex:1;">
+            <span class="print-label">Дата: </span>
+            <span class="print-line"></span>
+          </div>
         </div>
         <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
           <thead>
             <tr>
-              <th style="border: 1px solid #000; padding: 12px 8px; width: 30%; text-align: left;">ФИО ученика</th>
-              <th style="border: 1px solid #000; padding: 12px 8px; width: 10%; text-align: center;">Сл/мин</th>
-              <th style="border: 1px solid #000; padding: 12px 8px; width: 25%; text-align: left;">Ошибки (палочками)</th>
-              <th style="border: 1px solid #000; padding: 12px 8px; width: 20%; text-align: left;">Выразительность</th>
-              <th style="border: 1px solid #000; padding: 12px 8px; width: 15%; text-align: center;">Понимание</th>
+              <th style="border: 1px solid #000; padding: 10px 8px; width: 35%; text-align: left;">ФИО ученика</th>
+              <th style="border: 1px solid #000; padding: 10px 8px; width: 12%; text-align: center;">Сл/мин</th>
+              <th style="border: 1px solid #000; padding: 10px 8px; width: 23%; text-align: left;">Ошибки</th>
+              <th style="border: 1px solid #000; padding: 10px 8px; width: 30%; text-align: left;">Осознанность / Выразительность</th>
             </tr>
           </thead>
           <tbody>
-            ${Array(20).fill('<tr><td style="border: 1px solid #000; height: 38px;"></td><td style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td></tr>').join('')}
+            ${Array(20).fill('<tr><td style="border: 1px solid #000; height: 36px;"></td><td style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td></tr>').join('')}
           </tbody>
         </table>
       </div>
@@ -472,22 +470,38 @@ const UI = (() => {
 
     texts.forEach(t => {
       const card = document.createElement('div');
-      card.className = 'card';
-      card.style.display = 'flex';
-      card.style.justifyContent = 'space-between';
-      card.style.alignItems = 'center';
+      card.className = 'card accordion-item';
       card.innerHTML = `
-        <div>
-          <h3 style="margin-bottom:4px">${escapeHtml(t.title)}</h3>
-          <p class="muted">${t.grade} класс · ~${t.words} слов</p>
+        <div class="accordion-header" tabindex="0" style="padding:0; background:transparent;">
+          <div style="display:flex; align-items:center; gap: 12px;">
+            <input type="checkbox" class="lib-print-cb" value="${t.id}" style="width:18px; height:18px; cursor:pointer;" onclick="event.stopPropagation()" />
+            <div>
+              <h3 style="margin-bottom:2px">${escapeHtml(t.title)}</h3>
+              <p class="muted" style="font-size:0.8rem">${t.grade} класс · ~${t.words} слов</p>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap: 10px;">
+            <button class="btn btn--secondary btn-sm btn-print-single" data-id="${t.id}" onclick="event.stopPropagation()">
+              Печать
+            </button>
+            <svg class="chevron" viewBox="0 0 20 20" fill="currentColor" width="18" height="18" style="transition:transform 0.3s; color:var(--blue);"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </div>
         </div>
-        <button class="btn btn--secondary btn-print-single" data-id="${t.id}">
-          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v5a2 2 0 002 2h1v2a1 1 0 001 1h8a1 1 0 001-1v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a1 1 0 00-1-1H6a1 1 0 00-1 1zm2 0h6v3H7V4zm-1 9a1 1 0 100 2 1 1 0 000-2zm10 0a1 1 0 100 2 1 1 0 000-2zm-8 3v-2h4v2H8z" clip-rule="evenodd"/></svg>
-          Печать
-        </button>
+        <div class="accordion-content" style="margin-top: 10px;">
+          <div style="background:rgba(255,255,255,0.6); padding:14px; border-radius:var(--radius-sm); font-size:0.95rem; line-height:1.6; color:var(--blue); white-space: pre-wrap;">${escapeHtml(t.content)}</div>
+        </div>
       `;
+      const header = card.querySelector('.accordion-header');
+      header.addEventListener('click', () => {
+        const isOpen = card.classList.toggle('open');
+        card.querySelector('.chevron').style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+      });
+
       if (onPrintClick) {
-        card.querySelector('.btn-print-single').addEventListener('click', () => onPrintClick(t.id));
+        card.querySelector('.btn-print-single').addEventListener('click', (e) => {
+          e.stopPropagation();
+          onPrintClick(t.id);
+        });
       }
       container.appendChild(card);
     });

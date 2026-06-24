@@ -137,8 +137,8 @@
 
     <!-- Mode Toggle -->
     <div class="mode-toggle" style="margin-bottom:16px">
-      <button class="toggle-btn active" id="toggle-teacher" data-action="mode-teacher">По бумаге (Учитель)</button>
-      <button class="toggle-btn"        id="toggle-self" data-action="mode-self">С экрана (Самопроверка)</button>
+      <button class="toggle-btn active" id="toggle-teacher" data-action="mode-teacher">Чтение с листа</button>
+      <button class="toggle-btn"        id="toggle-self" data-action="mode-self">Чтение с экрана</button>
     </div>
 
     <!-- ══════════════════════════════════════════════════════════════════
@@ -347,7 +347,7 @@
         </button>
         <button class="btn btn--secondary" id="btn-export-csv" data-action="export-csv">
           <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-          Экспорт CSV
+          Сохранить отчет
         </button>
       </div>
     </div>
@@ -373,9 +373,9 @@
     </div>
 
     <div class="norm-legend" style="margin-top:16px; padding:0 4px">
-      <span><span class="norm-dot norm-dot--above"></span>Выше нормы ФГОС</span>
-      <span><span class="norm-dot norm-dot--normal"></span>В норме ФГОС</span>
-      <span><span class="norm-dot norm-dot--below"></span>Ниже нормы ФГОС</span>
+      <span><span class="norm-dot norm-dot--above"></span>Выше нормы</span>
+      <span><span class="norm-dot norm-dot--normal"></span>В норме</span>
+      <span><span class="norm-dot norm-dot--below"></span>Ниже нормы</span>
       <span class="muted">(норма по классу и полугодию)</span>
     </div>
 
@@ -473,10 +473,6 @@
         <label class="checkbox-row">
           <input type="checkbox" id="exp-monotone" />
           <span>Монотонность</span>
-        </label>
-        <label class="checkbox-row">
-          <input type="checkbox" id="exp-wrong-accents" />
-          <span>Неверные ударения</span>
         </label>
       </div>
     </div>
@@ -629,10 +625,6 @@
         <label class="checkbox-row">
           <input type="checkbox" id="manual-exp-mono" />
           <span>Монотонность</span>
-        </label>
-        <label class="checkbox-row">
-          <input type="checkbox" id="manual-exp-acc" />
-          <span>Неверные ударения</span>
         </label>
       </div>
     </div>
