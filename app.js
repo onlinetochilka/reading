@@ -18,6 +18,7 @@ const App = (() => {
     session:      null,
     chartInstance: null,
     checkedStudents: new Set(),
+    activeClassIdForStudent: null,
   };
 
   function freshSession(mode) {
@@ -93,6 +94,9 @@ const App = (() => {
           saveClasses();
           renderStudents();
         });
+      },
+      onAddStudent: classId => {
+        openAddStudentModal(classId);
       }
     });
   }
@@ -123,13 +127,51 @@ const App = (() => {
     const students = rawLines
       .map(s => s.replace(/^\s*[\d.)]+\s*/, '').trim())
       .filter(Boolean)
-      .map((n, i) => ({ id: `s${Date.now()}_${i}`, name: n }));
+      .map((n, i) => ({ id: `s${Date.now()}_${i}`, name: n }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'ru'));
 
     state.classes.push({ id: `c${Date.now()}`, name, students });
     saveClasses();
     closeAddClassModal();
     renderStudents();
     UI.showToast(`Класс «${name}» сохранен (${students.length} уч.)`);
+  }
+
+  function openAddStudentModal(classId) {
+    state.activeClassIdForStudent = classId;
+    document.getElementById('student-name').value = '';
+    document.getElementById('btn-save-student').disabled = true;
+    document.getElementById('modal-add-student').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('student-name').focus(), 100);
+  }
+
+  function closeAddStudentModal() {
+    state.activeClassIdForStudent = null;
+    document.getElementById('modal-add-student').classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  function handleStudentNameInput() {
+    const name = document.getElementById('student-name').value.trim();
+    document.getElementById('btn-save-student').disabled = !name;
+  }
+
+  function saveNewStudent() {
+    if (!state.activeClassIdForStudent) return;
+    const name = document.getElementById('student-name').value.trim();
+    if (!name) return;
+
+    const cls = state.classes.find(c => c.id === state.activeClassIdForStudent);
+    if (!cls) return;
+
+    const newStudent = { id: `s${Date.now()}`, name: name };
+    cls.students.push(newStudent);
+    cls.students.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+    saveClasses();
+    closeAddStudentModal();
+    renderStudents();
+    UI.showToast(`Ученик «${name}» добавлен`);
   }
 
   // ── LIBRARY TAB ───────────────────────────────────────────────────────────
@@ -876,7 +918,15 @@ const App = (() => {
     document.getElementById('btn-save-class')?.addEventListener('click', saveNewClass);
     document.getElementById('class-name')?.addEventListener('input', handleClassNameInput);
     document.getElementById('modal-add-class')?.addEventListener('click', e => {
-      if (e.target.id === 'modal-add-class') closeAddClassModal();
+      if (e.target === e.currentTarget) closeAddClassModal();
+    });
+
+    document.getElementById('btn-cancel-add-student')?.addEventListener('click', closeAddStudentModal);
+    document.getElementById('btn-cancel-add-student-2')?.addEventListener('click', closeAddStudentModal);
+    document.getElementById('btn-save-student')?.addEventListener('click', saveNewStudent);
+    document.getElementById('student-name')?.addEventListener('input', handleStudentNameInput);
+    document.getElementById('modal-add-student')?.addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeAddStudentModal();
     });
 
     // Print tab

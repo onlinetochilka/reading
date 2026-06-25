@@ -718,7 +718,7 @@ tbody tr:hover td { background: rgba(27,58,107,0.025); }
 .print-line--short { min-width: 80px; }
 
 /* 2-column landscape preview on screen */
-body.print-landscape .print-text {
+body.print-landscape .print-body-inner {
   column-count: 2; column-gap: 2rem;
 }
 
@@ -739,6 +739,7 @@ body.print-landscape .print-text {
 .toast-undo-btn { 
   background: rgba(255,255,255,0.2); border: none; color: #fff; font-weight: 600; 
   margin-left: 12px; padding: 4px 10px; border-radius: 12px; cursor: pointer; font-size: 0.8rem;
+  pointer-events: auto;
 }
 .toast-undo-btn:hover { background: rgba(255,255,255,0.3); }
 

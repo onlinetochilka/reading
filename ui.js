@@ -61,7 +61,7 @@ const UI = (() => {
 
   // ── Base Tab ──────────────────────────────────────────────────────────────
 
-  function renderClasses(classes, container, { onDeleteClass, onDeleteStudent } = {}) {
+  function renderClasses(classes, container, { onDeleteClass, onDeleteStudent, onAddStudent } = {}) {
     container.innerHTML = '';
     if (!classes.length) {
       container.appendChild(emptyState(
@@ -80,9 +80,14 @@ const UI = (() => {
             <h3 class="class-card__name">${escapeHtml(cls.name)}</h3>
             <span class="badge">${cls.students.length} уч.</span>
           </div>
-          <button class="btn-icon btn--danger" data-action="delete-class" data-class-id="${cls.id}" title="Удалить класс" aria-label="Удалить">
-            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zm-2 7a1 1 0 012 0v4a1 1 0 11-2 0V9zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V9a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-          </button>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn-icon btn--ghost" data-action="add-student" data-class-id="${cls.id}" title="Добавить ученика" aria-label="Добавить ученика">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+            </button>
+            <button class="btn-icon btn--danger" data-action="delete-class" data-class-id="${cls.id}" title="Удалить класс" aria-label="Удалить">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zm-2 7a1 1 0 012 0v4a1 1 0 11-2 0V9zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V9a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+            </button>
+          </div>
         </div>
         <div class="class-card__students">
           ${cls.students.map((s, i) => `
@@ -102,6 +107,11 @@ const UI = (() => {
           btn.addEventListener('click', e => {
             onDeleteStudent(e.currentTarget.dataset.classId, e.currentTarget.dataset.studentId);
           });
+        });
+      }
+      if (onAddStudent) {
+        card.querySelector('.btn-icon[data-action="add-student"]').addEventListener('click', e => {
+          onAddStudent(e.currentTarget.dataset.classId);
         });
       }
       container.appendChild(card);
@@ -356,34 +366,43 @@ const UI = (() => {
 
   function renderPrintBlank(container) {
     container.innerHTML = `
-      <div class="print-preview card" style="max-width: 100%; margin: 0; padding: 20px;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 24px;">
-          <h2 class="print-title" style="margin:0;">Бланк проверки техники чтения</h2>
-          <img src="${LOGO}" alt="Точилка" style="width: 32px; opacity: 0.8;" />
-        </div>
-        <div style="display:flex; gap: 30px; margin-bottom: 20px;">
-          <div style="display:flex; align-items:baseline; flex:1;">
-            <span class="print-label">Класс: </span>
-            <span class="print-line"></span>
+      <div class="print-preview card" style="max-width: 100%; margin: 0; padding: 0;">
+        <div style="padding: 1.5cm 2cm !important; font-family: 'Inter', system-ui, sans-serif !important; color: #1e293b !important; display: block !important;">
+          
+          <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 32px;">
+            <div style="flex: 1;">
+              <div style="display:flex; align-items:center; gap: 16px; margin-bottom: 24px;">
+                <img src="${LOGO}" alt="Точилка" style="width: 48px; height: 48px;" />
+                <h2 class="print-title" style="margin: 0; font-size: 22pt !important; font-family: 'Inter', system-ui, sans-serif !important; font-weight: 700; color: var(--blue, #1b3a6b) !important; letter-spacing: -0.5px;">Бланк проверки техники чтения</h2>
+              </div>
+              <div style="display:flex; gap: 48px;">
+                <div style="display:flex; align-items:baseline; width: 240px;">
+                  <span style="font-weight: 600; color: #64748b; margin-right: 12px; font-size: 11pt; text-transform: uppercase; letter-spacing: 0.5px;">Класс</span>
+                  <div style="border-bottom: 2px solid #e2e8f0; flex: 1;"></div>
+                </div>
+                <div style="display:flex; align-items:baseline; width: 240px;">
+                  <span style="font-weight: 600; color: #64748b; margin-right: 12px; font-size: 11pt; text-transform: uppercase; letter-spacing: 0.5px;">Дата</span>
+                  <div style="border-bottom: 2px solid #e2e8f0; flex: 1;"></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div style="display:flex; align-items:baseline; flex:1;">
-            <span class="print-label">Дата: </span>
-            <span class="print-line"></span>
-          </div>
+
+          <table style="width: 100%; border-collapse: collapse; font-size: 11pt; font-family: 'Inter', system-ui, sans-serif !important;">
+            <thead>
+              <tr>
+                <th style="border: 1px solid #cbd5e1; border-bottom: 2px solid #94a3b8; padding: 14px 16px; width: 40%; text-align: left; font-weight: 600; color: #475569; text-transform: uppercase; font-size: 9pt; letter-spacing: 0.5px; background: #f8fafc;">ФИО ученика</th>
+                <th style="border: 1px solid #cbd5e1; border-bottom: 2px solid #94a3b8; padding: 14px 16px; width: 12%; text-align: center; font-weight: 600; color: #475569; text-transform: uppercase; font-size: 9pt; letter-spacing: 0.5px; background: #f8fafc;">Сл/мин</th>
+                <th style="border: 1px solid #cbd5e1; border-bottom: 2px solid #94a3b8; padding: 14px 16px; width: 18%; text-align: center; font-weight: 600; color: #475569; text-transform: uppercase; font-size: 9pt; letter-spacing: 0.5px; background: #f8fafc;">Ошибки</th>
+                <th style="border: 1px solid #cbd5e1; border-bottom: 2px solid #94a3b8; padding: 14px 16px; width: 30%; text-align: left; font-weight: 600; color: #475569; text-transform: uppercase; font-size: 9pt; letter-spacing: 0.5px; background: #f8fafc;">Осознанность / Выразительность</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${Array(22).fill('<tr><td style="border: 1px solid #cbd5e1; height: 44px;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td></tr>').join('')}
+            </tbody>
+          </table>
+
         </div>
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-          <thead>
-            <tr>
-              <th style="border: 1px solid #000; padding: 10px 8px; width: 35%; text-align: left;">ФИО ученика</th>
-              <th style="border: 1px solid #000; padding: 10px 8px; width: 12%; text-align: center;">Сл/мин</th>
-              <th style="border: 1px solid #000; padding: 10px 8px; width: 23%; text-align: left;">Ошибки</th>
-              <th style="border: 1px solid #000; padding: 10px 8px; width: 30%; text-align: left;">Осознанность / Выразительность</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${Array(20).fill('<tr><td style="border: 1px solid #000; height: 36px;"></td><td style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td><td style="border: 1px solid #000;"></td></tr>').join('')}
-          </tbody>
-        </table>
       </div>
     `;
   }
