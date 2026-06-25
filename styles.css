@@ -718,8 +718,9 @@ tbody tr:hover td { background: rgba(27,58,107,0.025); }
 .print-line--short { min-width: 80px; }
 
 /* 2-column landscape preview on screen */
-body.print-landscape .print-body-inner {
+body.print-landscape #print-content-wrapper {
   column-count: 2; column-gap: 2rem;
+  column-fill: auto;
 }
 
 /* ── Toast ───────────────────────────────────────────────────────────────── */
@@ -824,7 +825,7 @@ body.print-landscape .print-body-inner {
     font-size: 13pt !important;
     line-height: 2.2 !important;
     color: #000 !important;
-    padding: 1.8cm 2cm !important;
+    padding: 0 !important;
   }
 
   .print-id-tag {
@@ -847,10 +848,11 @@ body.print-landscape .print-body-inner {
   .print-line  { border-color: #999 !important; display: inline-block !important; width: 200px; }
 
   /* Landscape 2-column mode */
-  body.print-landscape .print-body-inner {
+  body.print-landscape #print-content-wrapper {
     column-count: 2 !important;
     column-gap: 1.5cm !important;
+    column-fill: auto !important;
   }
 
-  @page { margin: 0; }
+  @page { margin: 1.5cm 2cm; }
 }

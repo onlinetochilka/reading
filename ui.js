@@ -367,7 +367,7 @@ const UI = (() => {
   function renderPrintBlank(container) {
     container.innerHTML = `
       <div class="print-preview card" style="max-width: 100%; margin: 0; padding: 0;">
-        <div style="padding: 1.5cm 2cm !important; font-family: 'Inter', system-ui, sans-serif !important; color: #1e293b !important; display: block !important;">
+        <div style="padding: 0 !important; font-family: 'Inter', system-ui, sans-serif !important; color: #1e293b !important; display: block !important;">
           
           <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 32px;">
             <div style="flex: 1;">
