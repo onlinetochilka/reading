@@ -90,7 +90,7 @@ const UI = (() => {
         <div class="class-card__header">
           <div class="class-card__info">
             <h3 class="class-card__name">${escapeHtml(cls.name)}</h3>
-            <span class="badge">${cls.students.length} уч.</span>
+            <span class="badge">${getStudentDeclension(cls.students.length)}</span>
           </div>
           <div style="display: flex; gap: 6px;">
             <button class="btn-icon btn--ghost" data-action="add-student" data-class-id="${cls.id}" title="Добавить ученика" aria-label="Добавить ученика">
@@ -103,10 +103,10 @@ const UI = (() => {
         </div>
         <div class="class-card__students">
           ${cls.students.map((s, i) => `
-            <span class="student-chip" tabindex="0">
-              ${i + 1}. ${escapeHtml(s.name)}
-              <button class="btn-del-chip" data-action="delete-student" data-class-id="${cls.id}" data-student-id="${s.id}" title="Удалить ученика">×</button>
-            </span>`).join('')}
+            <div class="student-list-item" tabindex="0">
+              <span class="student-list-item__name">${i + 1}. ${escapeHtml(s.name)}</span>
+              <button class="btn-del-student" data-action="delete-student" data-class-id="${cls.id}" data-student-id="${s.id}" title="Удалить ученика">×</button>
+            </div>`).join('')}
         </div>
       `;
       if (onDeleteClass) {
