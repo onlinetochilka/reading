@@ -238,9 +238,10 @@ const UI = (() => {
         normResult === 'below'  ? 'wpm--below'  :
         normResult === 'normal' ? 'wpm--normal' : '';
 
-      const comp = Array.isArray(r.comprehension) && r.comprehension.length
-        ? `${r.comprehension.filter(c => c.correct).length} / ${r.comprehension.length}`
-        : '—';
+      const comp = r.comprehensionScore ? r.comprehensionScore :
+                   Array.isArray(r.comprehension) && r.comprehension.length
+                     ? `${r.comprehension.filter(c => c.correct).length} / ${r.comprehension.length}`
+                     : '—';
 
       const modeLabel = r.mode === 'self' ? '<span class="badge badge--self">Экран</span>' : '<span class="badge badge--teacher">Бумага</span>';
 
@@ -334,9 +335,14 @@ const UI = (() => {
         const row = document.createElement('div');
         row.className = 'question-row';
         const cur = session.comprehension[i];
+        row.style.display = 'flex';
+        row.style.justifyContent = 'space-between';
+        row.style.alignItems = 'center';
+        row.style.marginBottom = '8px';
+        row.style.gap = '12px';
         row.innerHTML = `
-          <span class="question-text">${i + 1}. ${escapeHtml(q.q)}</span>
-          <div class="question-btns">
+          <span class="question-text" style="flex:1; font-size:0.9rem; line-height:1.3;">${i + 1}. ${escapeHtml(q.q)}</span>
+          <div class="question-btns" style="display:flex; gap:4px; flex-shrink:0;">
             <button class="btn-answer btn-yes${cur?.correct === true  ? ' active' : ''}" data-action="answer-yes" data-qi="${i}" data-ans="true"  title="Верно">Верно</button>
             <button class="btn-answer btn-no ${cur?.correct === false ? ' active' : ''}" data-action="answer-no" data-qi="${i}" data-ans="false" title="Неверно">Неверно</button>
           </div>

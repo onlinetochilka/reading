@@ -175,10 +175,20 @@
       <div class="card check-setup-bar">
         <div class="check-setup-bar__fields">
           <div class="form-group form-group--inline">
-            <label for="text-select-teacher">Текст</label>
-            <select id="text-select-teacher" data-action="select-text-teacher">
-              <option value="">— Выберите текст —</option>
-            </select>
+            <div style="display:flex; align-items:center;">
+              <label for="text-class-filter" style="margin-right: 8px;">Класс</label>
+              <select id="text-class-filter" data-action="filter-text-class" style="width: auto; margin-right: 12px;">
+                <option value="">Все</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+              </select>
+              <label for="text-select-teacher" style="margin-right: 8px;">Текст</label>
+              <select id="text-select-teacher" data-action="select-text-teacher" style="flex:1;">
+                <option value="">— Выберите текст —</option>
+              </select>
+            </div>
           </div>
         </div>
         <button class="btn btn--ghost btn-sm" id="btn-reset-teacher" data-action="reset-teacher-check">
@@ -239,21 +249,29 @@
           <div class="controls-divider"></div>
 
           <!-- Error counters (4 types as tap-buttons) -->
-          <div class="error-counters">
-            <button class="error-counter-btn" id="btn-distortion" data-action="error-distortion" disabled>
-              Искажение
+          <div class="error-counters" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button class="error-counter-btn error-btn" id="btn-distortion" data-action="error-distortion" disabled title="ЛКМ = +1, ПКМ = -1">
+              <div class="error-btn-content" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+                <span class="error-name" style="font-weight: 500;">Искажение <span class="hotkey-hint" style="opacity: 0.4; font-size: 0.8rem; margin-left: 4px;">[1]</span></span>
+              </div>
               <span class="counter-val" id="counter-distortion">0</span>
             </button>
-            <button class="error-counter-btn" id="btn-accent" data-action="error-accent" disabled>
-              Ударение
+            <button class="error-counter-btn error-btn" id="btn-accent" data-action="error-accent" disabled title="ЛКМ = +1, ПКМ = -1">
+              <div class="error-btn-content" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+                <span class="error-name" style="font-weight: 500;">Ударение <span class="hotkey-hint" style="opacity: 0.4; font-size: 0.8rem; margin-left: 4px;">[2]</span></span>
+              </div>
               <span class="counter-val" id="counter-accent">0</span>
             </button>
-            <button class="error-counter-btn" id="btn-ending" data-action="error-ending" disabled>
-              Окончание
+            <button class="error-counter-btn error-btn" id="btn-ending" data-action="error-ending" disabled title="ЛКМ = +1, ПКМ = -1">
+              <div class="error-btn-content" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+                <span class="error-name" style="font-weight: 500;">Окончание <span class="hotkey-hint" style="opacity: 0.4; font-size: 0.8rem; margin-left: 4px;">[3]</span></span>
+              </div>
               <span class="counter-val" id="counter-ending">0</span>
             </button>
-            <button class="error-counter-btn" id="btn-regression" data-action="error-regression" disabled>
-              Повтор
+            <button class="error-counter-btn error-btn" id="btn-regression" data-action="error-regression" disabled title="ЛКМ = +1, ПКМ = -1">
+              <div class="error-btn-content" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+                <span class="error-name" style="font-weight: 500;">Повтор <span class="hotkey-hint" style="opacity: 0.4; font-size: 0.8rem; margin-left: 4px;">[4]</span></span>
+              </div>
               <span class="counter-val" id="counter-regression">0</span>
             </button>
           </div>
@@ -268,7 +286,7 @@
               <label for="rm-syllables">Слогами</label>
               <input type="radio" name="reading-method" id="rm-words-syllables" value="Слова + слоги" disabled />
               <label for="rm-words-syllables" title="Слова + слоги">Сл+слг</label>
-              <input type="radio" name="reading-method" id="rm-words" value="Целыми словами" checked disabled />
+              <input type="radio" name="reading-method" id="rm-words" value="Целыми словами" disabled />
               <label for="rm-words">Словами</label>
             </div>
           </div>
@@ -532,7 +550,7 @@
 
     <div class="modal__actions">
       <button class="btn btn--ghost" id="btn-cancel-modal-2" data-action="close-modal">Отмена</button>
-      <button class="btn btn--primary" id="btn-save-result" data-action="save-result">
+      <button class="btn btn--primary" id="btn-save-result" data-action="save-check-result">
         <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
         Сохранить результат
       </button>

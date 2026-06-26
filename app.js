@@ -490,9 +490,8 @@ const App = (() => {
       if (el) el.textContent = '0';
     });
 
-    // Reset reading method
-    const rmDefault = document.getElementById('rm-words');
-    if (rmDefault) rmDefault.checked = true;
+    // Reset reading method (no default)
+    document.querySelectorAll('input[name="reading-method"]').forEach(r => r.checked = false);
 
     // Reset expressiveness
     ['exp-ignore-signs','exp-monotone','exp-wrong-accents'].forEach(id => {
@@ -603,8 +602,7 @@ const App = (() => {
       const el = document.getElementById(`counter-${k}`);
       if (el) el.textContent = '0';
     });
-    const rmDefault = document.getElementById('rm-words');
-    if (rmDefault) rmDefault.checked = true;
+    document.querySelectorAll('input[name="reading-method"]').forEach(r => r.checked = false);
 
     updateCheckUI();
 
@@ -738,12 +736,33 @@ const App = (() => {
         session.wpm = Math.round((words / Math.max(session.elapsed, 1)) * 60);
       }
     } else if (session.mode === 'teacher') {
+      const rmChecked = document.querySelector('input[name="reading-method"]:checked');
+      if (!rmChecked) {
+        const rmSection = document.querySelector('.reading-method-section');
+        if (rmSection) {
+          rmSection.classList.remove('has-error');
+          void rmSection.offsetWidth; // trigger reflow
+          rmSection.classList.add('has-error');
+        }
+        UI.showToast('Пожалуйста, выберите способ чтения', 'error');
+        return;
+      }
+      session.readingMethod = rmChecked.value;
+
       // Collect expressiveness from the modal checkboxes
       session.expressiveness = {
         ignoreSigns:  document.getElementById('exp-ignore-signs')?.checked  ?? false,
         monotone:     document.getElementById('exp-monotone')?.checked      ?? false,
       };
     }
+
+    if (session.comprehension && session.comprehension.length > 0) {
+      const correct = session.comprehension.filter(c => c && c.correct).length;
+      const total = session.comprehension.length;
+      session.comprehensionScore = `${correct} / ${total}`;
+      delete session.comprehension;
+    }
+
     Assessment.saveResult({ ...session });
     
     if (session.classId && session.studentId) {
@@ -1020,6 +1039,39 @@ const App = (() => {
   // ── Event Binding ─────────────────────────────────────────────────────────
 
   function bindEvents() {
+    // Global hotkeys
+    document.addEventListener('keydown', e => {
+      // Ignore if inside an input, textarea or select
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+
+      if (e.code === 'Space') {
+        if (state.checkMode === 'teacher') {
+          if (state.checkState === 'setup' && !document.getElementById('btn-start-teacher').disabled) {
+            e.preventDefault();
+            startTeacherCheck();
+          } else if (state.checkState === 'reading' && !document.getElementById('btn-stop-teacher').disabled) {
+            e.preventDefault();
+            stopTeacherCheck();
+          }
+        }
+      }
+
+      if (state.checkState === 'reading') {
+        const keyMap = { 'Digit1': 'distortion', 'Digit2': 'accent', 'Digit3': 'ending', 'Digit4': 'regression' };
+        if (keyMap[e.code]) {
+          e.preventDefault();
+          const err = keyMap[e.code];
+          if (e.shiftKey) {
+            if (state.session.errors[err] > 0) state.session.errors[err]--;
+          } else {
+            state.session.errors[err]++;
+          }
+          const el = document.getElementById(`counter-${err}`);
+          if (el) el.textContent = state.session.errors[err];
+        }
+      }
+    });
+
     // Tabs
     document.querySelectorAll('.tab-btn').forEach(btn =>
       btn.addEventListener('click', () => switchTab(btn.dataset.tab))
@@ -1079,12 +1131,32 @@ const App = (() => {
 
     // Error counter buttons
     ['distortion','accent','ending','regression'].forEach(key => {
-      document.getElementById(`btn-${key}`)?.addEventListener('click', () => {
+      const btn = document.getElementById(`btn-${key}`);
+      if (!btn) return;
+      btn.addEventListener('click', () => {
         if (state.checkState !== 'reading') return;
         state.session.errors[key]++;
         const el = document.getElementById(`counter-${key}`);
         if (el) el.textContent = state.session.errors[key];
       });
+      btn.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        if (state.checkState !== 'reading') return;
+        if (state.session.errors[key] > 0) state.session.errors[key]--;
+        const el = document.getElementById(`counter-${key}`);
+        if (el) el.textContent = state.session.errors[key];
+      });
+    });
+
+    // Text class filter in check tab
+    document.getElementById('text-class-filter')?.addEventListener('change', (e) => {
+      const val = e.target.value;
+      const filtered = val ? state.texts.filter(t => t.grade === parseInt(val)) : state.texts;
+      const selectEl = document.getElementById('text-select-teacher');
+      UI.renderTextSelect(filtered, selectEl);
+      if (filtered.length === 0) {
+        selectEl.innerHTML = '<option value="" disabled selected>Тексты не найдены</option>';
+      }
     });
 
     // Word click delegation (registered once on the stable container)

@@ -462,20 +462,21 @@ select {
   display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 0;
 }
 .error-counter-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  border: 1.5px solid rgba(27,58,107,0.16);
-  background: rgba(255,255,248,0.80); color: var(--blue);
-  font-size: 0.78rem; font-weight: 500; padding: 7px 10px;
+  display: flex; justify-content: space-between; align-items: center;
+  border: 1px solid rgba(27,58,107,0.16);
+  background: var(--glass-bg); color: var(--blue);
+  font-size: 0.85rem; padding: 12px 14px;
   border-radius: var(--radius-sm); cursor: pointer;
   transition: all var(--transition); user-select: none;
-  flex: 1 1 auto;
+  min-height: 64px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
 }
 .error-counter-btn:hover:not(:disabled) {
-  background: var(--blue-pale-md); border-color: var(--blue);
-  transform: translateY(-2px); box-shadow: 0 4px 10px rgba(27,58,107,0.12);
+  background: #fff; border-color: var(--blue-light);
+  transform: translateY(-2px); box-shadow: 0 6px 16px rgba(27,58,107,0.12);
 }
-.error-counter-btn:active:not(:disabled) { transform: scale(0.97); }
-.error-counter-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.error-counter-btn:active:not(:disabled) { transform: scale(0.98); }
+.error-counter-btn:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
 .error-counter-btn .counter-val {
   background: var(--blue); color: #fff; border-radius: 10px;
   min-width: 22px; height: 22px; display: inline-flex; align-items: center;
@@ -544,6 +545,19 @@ select {
 .segmented-control input[type="radio"]:disabled + label {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* ── Validation ──────────────────────────────────────────────────────────── */
+.has-error {
+  border: 1px solid var(--burgundy) !important;
+  border-radius: var(--radius-sm);
+  animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
 }
 
 /* ── Expressiveness ──────────────────────────────────────────────────────── */
