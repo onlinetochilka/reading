@@ -70,7 +70,7 @@ const UI = (() => {
     return count + ' учеников';
   }
 
-  function renderClasses(classes, container, onDeleteClass, onAddStudent, onDeleteStudent) {
+  function renderClasses(classes, container, { onDeleteClass, onDeleteStudent, onAddStudent } = {}) {
     container.innerHTML = '';
     if (classes.length === 0) {
       container.innerHTML = `
