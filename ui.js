@@ -61,13 +61,25 @@ const UI = (() => {
 
   // ── Base Tab ──────────────────────────────────────────────────────────────
 
-  function renderClasses(classes, container, { onDeleteClass, onDeleteStudent, onAddStudent } = {}) {
+  function getStudentDeclension(count) {
+    const mod10 = count % 10;
+    const mod100 = count % 100;
+    if (mod100 >= 11 && mod100 <= 19) return count + ' учеников';
+    if (mod10 === 1) return count + ' ученик';
+    if (mod10 >= 2 && mod10 <= 4) return count + ' ученика';
+    return count + ' учеников';
+  }
+
+  function renderClasses(classes, container, onDeleteClass, onAddStudent, onDeleteStudent) {
     container.innerHTML = '';
-    if (!classes.length) {
-      container.appendChild(emptyState(
-        'Классов пока нет',
-        'Создайте первый класс, чтобы начать работу',
-      ));
+    if (classes.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48" style="opacity:0.4;margin-bottom:12px;">
+            <path d="M12 4v16m8-8H4"></path>
+          </svg>
+          <p>Нет классов. Создайте свой первый класс!</p>
+        </div>`;
       return;
     }
 

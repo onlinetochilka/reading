@@ -127,7 +127,7 @@ p  { line-height: 1.65; }
   flex: 1;
   border: none;
   background: transparent;
-  color: rgba(27,58,107,0.5);
+  color: rgba(27,58,107,0.7);
   font-size: 0.875rem;
   font-weight: 500;
   padding: 9px 12px;
@@ -593,19 +593,29 @@ select {
 .class-card__header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
 .class-card__info   { display: flex; align-items: center; gap: 10px; flex: 1; }
 .class-card__name   { font-size: 1.02rem; }
-.class-card__students { display: flex; flex-wrap: wrap; gap: 6px; }
-.student-chip {
-  background: var(--blue-pale); color: var(--blue); border: 1px solid var(--blue-pale-md);
-  border-radius: 20px; padding: 3px 10px; font-size: 0.78rem; font-weight: 500;
-  display: inline-flex; align-items: center; gap: 4px; transition: all var(--transition);
+.class-card__students { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+  gap: 8px; 
 }
-.btn-del-chip {
-  background: transparent; border: none; color: rgba(27,58,107,0.4);
+.student-list-item {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #f8fafc; border: 1px solid #e2e8f0;
+  border-radius: 6px; padding: 6px 10px; font-size: 0.85rem; font-weight: 500;
+  color: var(--text); transition: all var(--transition);
+}
+.student-list-item:hover {
+  background: #f1f5f9; border-color: #cbd5e1;
+}
+.student-list-item__name {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; margin-right: 8px;
+}
+.btn-del-student {
+  background: transparent; border: none; color: #94a3b8;
   cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;
-  width: 14px; height: 14px; border-radius: 50%; opacity: 0; transition: opacity 0.2s, background 0.2s;
+  width: 20px; height: 20px; border-radius: 4px; transition: all 0.2s; font-size: 1.1rem; line-height: 1;
 }
-.student-chip:hover .btn-del-chip, .student-chip:focus-within .btn-del-chip { opacity: 1; }
-.btn-del-chip:hover { background: var(--burgundy); color: white; }
+.btn-del-student:hover { background: #fee2e2; color: #ef4444; }
 
 /* ── Badge ───────────────────────────────────────────────────────────────── */
 .badge {
