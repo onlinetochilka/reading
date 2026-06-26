@@ -115,7 +115,7 @@ const UI = (() => {
         });
       }
       if (onDeleteStudent) {
-        card.querySelectorAll('.btn-del-chip').forEach(btn => {
+        card.querySelectorAll('.btn-del-student').forEach(btn => {
           btn.addEventListener('click', e => {
             onDeleteStudent(e.currentTarget.dataset.classId, e.currentTarget.dataset.studentId);
           });
