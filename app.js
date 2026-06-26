@@ -12,6 +12,7 @@ const App = (() => {
     currentTab:   'students',
     classes:      [],
     texts:        [],
+    selectedTextIds: [], // array of string IDs
     checkMode:    'teacher',  // 'teacher' | 'self'
     checkState:   'setup',    // 'setup' | 'reading' | 'word-select'
     printLayout:  'portrait', // 'portrait' | 'landscape'
@@ -198,35 +199,148 @@ const App = (() => {
 
   function renderLibrary() {
     const textsToRender = getFilteredLibraryTexts();
-    UI.renderLibraryList(textsToRender, document.getElementById('library-list'), printSingleText);
-    applyPrintLayout(state.printLayout);
+    const countSpan = document.getElementById('found-texts-count');
+    if (countSpan) countSpan.textContent = `Найдено текстов: ${textsToRender.length}`;
+    
+    const emptyState = document.getElementById('library-empty-state');
+    if (textsToRender.length === 0) {
+      if (emptyState) emptyState.style.display = 'flex';
+    } else {
+      if (emptyState) emptyState.style.display = 'none';
+    }
+
+    UI.renderLibraryList(textsToRender, document.getElementById('library-list'), state.selectedTextIds);
+    updateSelectAllCheckboxState(textsToRender);
+    updateContextActionBar();
   }
 
-  function printSingleText(id) {
-    const textData = state.texts.find(t => t.id === id);
-    if (!textData) return;
-    const wrapper = document.getElementById('print-content-wrapper');
-    wrapper.innerHTML = '';
-    const div = document.createElement('div');
-    UI.renderPrintPreview(textData, div);
-    wrapper.appendChild(div.firstElementChild);
-    window.print();
+  function toggleTextSelection(id) {
+    const idx = state.selectedTextIds.indexOf(String(id));
+    if (idx > -1) {
+      state.selectedTextIds.splice(idx, 1);
+    } else {
+      state.selectedTextIds.push(String(id));
+    }
+    updateContextActionBar();
+    updateSelectAllCheckboxState(getFilteredLibraryTexts());
   }
 
-  function printAllTexts() {
+  function handleSelectAll() {
+    const textsToRender = getFilteredLibraryTexts();
+    const cb = document.getElementById('select-all-texts');
+    const checked = cb.checked;
+    
+    if (checked) {
+      textsToRender.forEach(t => {
+        if (!state.selectedTextIds.includes(String(t.id))) {
+          state.selectedTextIds.push(String(t.id));
+        }
+      });
+    } else {
+      const visibleIds = textsToRender.map(t => String(t.id));
+      state.selectedTextIds = state.selectedTextIds.filter(id => !visibleIds.includes(id));
+    }
+    
+    const checkboxes = document.querySelectorAll('.text-checkbox');
+    checkboxes.forEach(c => c.checked = checked);
+    
+    updateContextActionBar();
+    updateSelectAllCheckboxState(textsToRender);
+  }
+
+  function updateSelectAllCheckboxState(visibleTexts) {
+    const cb = document.getElementById('select-all-texts');
+    if (!cb) return;
+    
+    if (visibleTexts.length === 0) {
+      cb.checked = false;
+      cb.indeterminate = false;
+      return;
+    }
+
+    let selectedVisibleCount = 0;
+    visibleTexts.forEach(t => {
+      if (state.selectedTextIds.includes(String(t.id))) selectedVisibleCount++;
+    });
+
+    if (selectedVisibleCount === 0) {
+      cb.checked = false;
+      cb.indeterminate = false;
+    } else if (selectedVisibleCount === visibleTexts.length) {
+      cb.checked = true;
+      cb.indeterminate = false;
+    } else {
+      cb.checked = false;
+      cb.indeterminate = true;
+    }
+  }
+
+  function clearSelection() {
+    state.selectedTextIds = [];
+    document.querySelectorAll('.text-checkbox').forEach(c => c.checked = false);
+    updateSelectAllCheckboxState(getFilteredLibraryTexts());
+    updateContextActionBar();
+  }
+
+  function updateContextActionBar() {
+    const bar = document.getElementById('context-action-bar');
+    const countSpan = document.getElementById('cab-selected-count');
+    if (!bar || !countSpan) return;
+
+    if (state.selectedTextIds.length > 0) {
+      countSpan.textContent = `Выбрано: ${state.selectedTextIds.length}`;
+      bar.classList.add('visible');
+    } else {
+      bar.classList.remove('visible');
+    }
+  }
+
+  function printSelectedTexts() {
+    if (state.selectedTextIds.length === 0) return;
+
+    if (state.selectedTextIds.length > 15) {
+      if (!confirm(`Вы собираетесь отправить на печать ${state.selectedTextIds.length} текстов. Это может занять много бумаги. Продолжить?`)) {
+        return;
+      }
+    }
+
     const wrapper = document.getElementById('print-content-wrapper');
     wrapper.innerHTML = '';
     
-    const checked = Array.from(document.querySelectorAll('.lib-print-cb:checked')).map(cb => cb.value);
-    const textsToPrint = checked.length > 0 
-      ? state.texts.filter(t => checked.includes(t.id))
-      : getFilteredLibraryTexts();
+    const layoutRadio = document.querySelector('input[name="cab-print-layout"]:checked');
+    const layout = layoutRadio ? layoutRadio.value : 'portrait';
+    
+    const container = document.createElement('div');
+    container.className = 'print-container' + (layout === 'landscape' ? ' landscape' : '');
+
+    const textsToPrint = state.texts.filter(t => state.selectedTextIds.includes(String(t.id)));
       
     textsToPrint.forEach(t => {
-      const div = document.createElement('div');
-      UI.renderPrintPreview(t, div);
-      wrapper.appendChild(div.firstElementChild);
+      const item = document.createElement('div');
+      item.className = 'print-text-item';
+      
+      const title = document.createElement('h2');
+      title.className = 'print-title';
+      title.textContent = t.title;
+      item.appendChild(title);
+
+      const content = document.createElement('div');
+      content.style.whiteSpace = 'pre-wrap';
+      content.style.fontSize = '12pt';
+      content.style.lineHeight = '1.6';
+      content.textContent = t.content;
+      item.appendChild(content);
+
+      container.appendChild(item);
     });
+    
+    if (layout === 'landscape') {
+      document.body.classList.add('print-landscape');
+    } else {
+      document.body.classList.remove('print-landscape');
+    }
+
+    wrapper.appendChild(container);
     window.print();
   }
 
@@ -930,14 +1044,23 @@ const App = (() => {
     });
 
     // Print tab
-    document.getElementById('btn-print-all')?.addEventListener('click', printAllTexts);
     document.getElementById('btn-print-blank')?.addEventListener('click', printBlank);
     document.getElementById('btn-add-text')?.addEventListener('click', openAddTextModal);
     document.getElementById('btn-cancel-add-text')?.addEventListener('click', closeAddTextModal);
     document.getElementById('btn-cancel-add-text-2')?.addEventListener('click', closeAddTextModal);
     document.getElementById('btn-save-new-text')?.addEventListener('click', saveNewText);
-    document.getElementById('btn-layout-portrait')?.addEventListener('click',  () => setPrintLayout('portrait'));
-    document.getElementById('btn-layout-landscape')?.addEventListener('click', () => setPrintLayout('landscape'));
+    
+    // Context Action Bar events
+    document.getElementById('select-all-texts')?.addEventListener('change', handleSelectAll);
+    document.getElementById('btn-clear-selection')?.addEventListener('click', clearSelection);
+    document.getElementById('btn-cab-print')?.addEventListener('click', printSelectedTexts);
+    
+    // Delegation for individual checkboxes
+    document.getElementById('library-list')?.addEventListener('change', e => {
+      if (e.target.classList.contains('text-checkbox')) {
+        toggleTextSelection(e.target.value);
+      }
+    });
     
     // Library filters
     document.getElementById('lib-filter-class')?.addEventListener('change', renderLibrary);

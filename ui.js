@@ -488,52 +488,44 @@ const UI = (() => {
 
   // ── Library List ──────────────────────────────────────────────────────────
 
-  function renderLibraryList(texts, container, onPrintClick) {
+  function renderLibraryList(texts, container, selectedIds = []) {
     container.innerHTML = '';
     
     if (!texts || !texts.length) {
-      container.appendChild(emptyState(
-        'Ничего не найдено',
-        'Попробуйте изменить параметры фильтрации'
-      ));
       return;
     }
 
     texts.forEach(t => {
+      const isChecked = selectedIds.includes(String(t.id)) || selectedIds.includes(t.id) ? 'checked' : '';
       const card = document.createElement('div');
-      card.className = 'card accordion-item';
+      card.className = 'text-card';
       card.innerHTML = `
-        <div class="accordion-header" tabindex="0" style="padding:0; background:transparent;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 12px;">
           <div style="display:flex; align-items:center; gap: 12px;">
-            <input type="checkbox" class="lib-print-cb" value="${t.id}" style="width:18px; height:18px; cursor:pointer;" onclick="event.stopPropagation()" />
+            <input type="checkbox" class="text-checkbox" value="${t.id}" ${isChecked} style="width:18px; height:18px; cursor:pointer;" />
             <div>
-              <h3 style="margin-bottom:2px">${escapeHtml(t.title)}</h3>
+              <h3 style="margin-bottom:2px; font-size:1rem;">${escapeHtml(t.title)}</h3>
               <p class="muted" style="font-size:0.8rem">${t.grade} класс · ~${t.words} слов</p>
             </div>
           </div>
-          <div style="display:flex; align-items:center; gap: 10px;">
-            <button class="btn btn--secondary btn-sm btn-print-single" data-id="${t.id}" onclick="event.stopPropagation()">
-              Печать
-            </button>
-            <svg class="chevron" viewBox="0 0 20 20" fill="currentColor" width="18" height="18" style="transition:transform 0.3s; color:var(--blue);"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-          </div>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor" width="18" height="18" style="transition:transform 0.3s; color:var(--blue);"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
         </div>
-        <div class="accordion-content" style="margin-top: 10px;">
-          <div style="background:rgba(255,255,255,0.6); padding:14px; border-radius:var(--radius-sm); font-size:0.95rem; line-height:1.6; color:var(--blue); white-space: pre-wrap;">${escapeHtml(t.content)}</div>
+        <div class="accordion-content">
+          <div style="padding: 0 14px 14px 44px; font-size:0.95rem; line-height:1.6; color:var(--blue); white-space: pre-wrap;">${escapeHtml(t.content)}</div>
         </div>
       `;
-      const header = card.querySelector('.accordion-header');
-      header.addEventListener('click', () => {
+      
+      const cb = card.querySelector('.text-checkbox');
+      cb.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+
+      card.addEventListener('click', (e) => {
+        if (e.target.tagName.toLowerCase() === 'input') return;
         const isOpen = card.classList.toggle('open');
         card.querySelector('.chevron').style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
       });
 
-      if (onPrintClick) {
-        card.querySelector('.btn-print-single').addEventListener('click', (e) => {
-          e.stopPropagation();
-          onPrintClick(t.id);
-        });
-      }
       container.appendChild(card);
     });
   }
