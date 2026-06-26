@@ -915,11 +915,11 @@ body.print-landscape #print-content-wrapper {
   left: 50%;
   transform: translate(-50%, 100px);
   opacity: 0;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 32px rgba(27, 58, 107, 0.08), inset 0 0 0 1px rgba(255,255,255,0.4);
   border-radius: 100px;
   padding: 10px 24px;
   display: flex;
@@ -935,5 +935,18 @@ body.print-landscape #print-content-wrapper {
   pointer-events: auto;
 }
 #btn-clear-selection:hover {
-  background: rgba(27,58,107,0.1) !important;
+  background: rgba(27,58,107,0.06) !important;
+}
+
+.btn--glass {
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--blue);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 8px rgba(27, 58, 107, 0.05);
+  backdrop-filter: blur(10px);
+}
+.btn--glass:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(27, 58, 107, 0.08);
 }

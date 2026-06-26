@@ -137,19 +137,19 @@
       </div>
       
       <div style="display:flex; align-items:center; gap:12px;">
-        <div class="mode-toggle" style="margin-bottom:0; background:rgba(255,255,255,0.5);">
-          <label class="toggle-btn active" style="display:flex; align-items:center; gap:6px; cursor:pointer; margin:0;">
-            <input type="radio" name="cab-print-layout" value="portrait" checked style="display:none;">
+        <div class="segmented-control" style="width: 240px; background: rgba(255,255,255,0.4);">
+          <input type="radio" id="cab-layout-portrait" name="cab-print-layout" value="portrait" checked>
+          <label for="cab-layout-portrait" style="display:flex; align-items:center; justify-content:center; gap:6px;">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2" ry="2"></rect></svg>
             Книжная
           </label>
-          <label class="toggle-btn" style="display:flex; align-items:center; gap:6px; cursor:pointer; margin:0;">
-            <input type="radio" name="cab-print-layout" value="landscape" style="display:none;">
+          <input type="radio" id="cab-layout-landscape" name="cab-print-layout" value="landscape">
+          <label for="cab-layout-landscape" style="display:flex; align-items:center; justify-content:center; gap:6px;">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect><line x1="12" y1="6" x2="12" y2="18"></line></svg>
             Альбомная
           </label>
         </div>
-        <button class="btn btn--primary" id="btn-cab-print" data-action="print-selected">Распечатать</button>
+        <button class="btn btn--glass" id="btn-cab-print" data-action="print-selected">Распечатать</button>
       </div>
     </div>
   </div>
