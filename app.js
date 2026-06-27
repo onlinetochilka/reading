@@ -1166,6 +1166,8 @@ const App = (() => {
     document.getElementById('modal-overlay')?.addEventListener('click', e => {
       if (e.target.id === 'modal-overlay') UI.hideModal();
     });
+    document.getElementById('btn-cancel-modal')?.addEventListener('click', UI.hideModal);
+    document.getElementById('btn-cancel-modal-2')?.addEventListener('click', UI.hideModal);
     document.getElementById('modal-chart')?.addEventListener('click', e => {
       if (e.target.id === 'modal-chart') closeChart();
     });

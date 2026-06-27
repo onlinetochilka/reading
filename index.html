@@ -256,19 +256,19 @@
             <button class="error-counter-btn error-btn" id="btn-distortion" data-action="error-distortion" disabled title="ЛКМ = +1, ПКМ = -1">
               <div class="error-btn-content" style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%;">
                 <span class="error-name">Искажение</span>
-                <span class="counter-val" id="counter-distortion" style="font-size: 1.2rem; font-weight: 700; color: var(--blue);">0</span>
+                <span class="counter-val" id="counter-distortion" style="font-size: 1.2rem; font-weight: 700;">0</span>
               </div>
             </button>
             <button class="error-counter-btn error-btn" id="btn-accent" data-action="error-accent" disabled title="ЛКМ = +1, ПКМ = -1">
               <div class="error-btn-content" style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%;">
                 <span class="error-name">Ударение</span>
-                <span class="counter-val" id="counter-accent" style="font-size: 1.2rem; font-weight: 700; color: var(--blue);">0</span>
+                <span class="counter-val" id="counter-accent" style="font-size: 1.2rem; font-weight: 700;">0</span>
               </div>
             </button>
             <button class="error-counter-btn error-btn" id="btn-regression" data-action="error-regression" disabled title="ЛКМ = +1, ПКМ = -1">
               <div class="error-btn-content" style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%;">
                 <span class="error-name">Повтор</span>
-                <span class="counter-val" id="counter-regression" style="font-size: 1.2rem; font-weight: 700; color: var(--blue);">0</span>
+                <span class="counter-val" id="counter-regression" style="font-size: 1.2rem; font-weight: 700;">0</span>
               </div>
             </button>
           </div>
@@ -486,30 +486,8 @@
       </button>
     </div>
 
-    <!-- WPM — teacher mode -->
-    <div id="modal-wpm-display">
-      <div class="wpm-summary">
-        <span class="wpm-big" id="modal-wpm-value">0</span>
-        <span class="wpm-label">слов / мин</span>
-      </div>
-      <p class="wpm-detail">
-        <span id="modal-words-value">0</span> слов за <span id="modal-time-value">0:00</span>
-      </p>
-    </div>
-
-    <!-- WPM — self mode input -->
-    <div id="modal-wpm-input-section" style="display:none">
-      <div class="form-group">
-        <label for="modal-words-input">Сколько слов вы прочитали?</label>
-        <input type="number" id="modal-words-input" placeholder="Введите количество слов" min="0" max="9999" />
-        <p class="muted" style="margin-top:4px">Слов/мин рассчитается автоматически при сохранении.</p>
-      </div>
-    </div>
-
-    <!-- Smart Summary (Moved to bottom) -->
-
     <!-- Teacher-only expressiveness and reading method -->
-    <div id="modal-teacher-section" class="modal-section">
+    <div id="modal-teacher-section" class="modal-section" style="margin-top: 0; padding-top: 0; border-top: none;">
       <div class="reading-method-section" style="margin-bottom: 16px;">
         <h4>Способ чтения</h4>
         <div class="segmented-control" style="margin-top: 8px;">
@@ -549,8 +527,28 @@
       <div id="modal-questions"></div>
     </div>
 
-    <!-- Smart Summary (Moved to bottom) -->
-    <div id="modal-summary-section" class="modal-section" style="display:none; margin-top: 16px;">
+    <!-- WPM — teacher mode -->
+    <div id="modal-wpm-display" class="modal-section">
+      <div class="wpm-summary">
+        <span class="wpm-big" id="modal-wpm-value">0</span>
+        <span class="wpm-label">слов / мин</span>
+      </div>
+      <p class="wpm-detail">
+        <span id="modal-words-value">0</span> слов за <span id="modal-time-value">0:00</span>
+      </p>
+    </div>
+
+    <!-- WPM — self mode input -->
+    <div id="modal-wpm-input-section" class="modal-section" style="display:none">
+      <div class="form-group">
+        <label for="modal-words-input">Сколько слов вы прочитали?</label>
+        <input type="number" id="modal-words-input" placeholder="Введите количество слов" min="0" max="9999" />
+        <p class="muted" style="margin-top:4px">Слов/мин рассчитается автоматически при сохранении.</p>
+      </div>
+    </div>
+
+    <!-- Smart Summary -->
+    <div id="modal-summary-section" class="modal-section" style="display:none;">
       <h4>Методический вывод</h4>
       <p id="modal-summary-text" style="font-size:0.95rem; color:var(--blue); line-height:1.5; font-weight:500;"></p>
     </div>
