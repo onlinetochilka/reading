@@ -617,7 +617,7 @@ select {
 .text-display--large { font-size: 1.45rem; line-height: 1.75; }
 
 .word { display: inline; transition: background 0.2s, color 0.2s; border-radius: 4px; padding: 2px; }
-.word--clickable { cursor: pointer; border-radius: 3px; transition: background var(--transition); padding: 0 1px; }
+.word--clickable { cursor: pointer; border-radius: 3px; transition: background var(--transition); padding: 0 1px; pointer-events: auto; }
 .word--clickable:hover { background: rgba(27,58,107,0.10); }
 .word--selected { background: rgba(41,82,163,0.18) !important; border-radius: 3px; }
 .selected-word { background: var(--blue-pale-md) !important; color: var(--blue) !important; border-radius: 6px; box-shadow: 0 0 0 2px var(--blue-pale-md); }
@@ -1161,6 +1161,7 @@ body.print-landscape #print-content-wrapper {
   padding: 0;
   max-width: 100%;
   width: auto;
+  margin: auto !important;
 }
 .student-card-modal::backdrop {
   background-color: rgba(15, 23, 42, 0.6);

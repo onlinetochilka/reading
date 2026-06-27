@@ -519,6 +519,9 @@ const UI = (() => {
     const norm = Assessment.getNorm(result.grade, Assessment.getCurrentHalf());
     if (norm) {
       statusClass = (result.wpm >= norm.min) ? 'status-ok' : 'status-low';
+      document.getElementById('student-card-norm-text').textContent = `Норма: ${norm.min}-${norm.max} сл/мин`;
+    } else {
+      document.getElementById('student-card-norm-text').textContent = 'Норма не задана';
     }
     const statusDot = document.getElementById('student-card-status');
     statusDot.className = 'status-dot'; // reset
@@ -547,6 +550,12 @@ const UI = (() => {
                    ? `${result.comprehension.filter(c => c.correct).length} из ${result.comprehension.length}`
                    : (result.comprehensionScore || '—');
     document.getElementById('student-card-comp').textContent = comp;
+    
+    document.getElementById('student-card-method').textContent = result.readingMethod || 'Целыми словами';
+    
+    const expText = result.expressiveness?.monotone ? 'Монотонно' : 
+                    result.expressiveness?.ignoreSigns ? 'Игнорирует знаки препинания' : '—';
+    document.getElementById('student-card-expressiveness').textContent = expText;
     
     // Store result id on the print button for single card printing
     document.getElementById('btn-print-single-card').dataset.rid = result.id;
@@ -629,6 +638,12 @@ const UI = (() => {
                    : (r.comprehensionScore || '—');
 
       const dateStr = new Date(r.date).toLocaleDateString('ru-RU');
+      const norm = Assessment.getNorm(r.grade, Assessment.getCurrentHalf());
+      const normStr = norm ? `Норма: ${norm.min}-${norm.max} сл/мин` : 'Норма не задана';
+      
+      const methodStr = r.readingMethod || 'Целыми словами';
+      const expText = r.expressiveness?.monotone ? 'Монотонно' : 
+                      r.expressiveness?.ignoreSigns ? 'Игнорирует знаки' : '—';
 
       const allResults = Assessment.getResults()
         .filter(hist => hist.studentId === r.studentId)
@@ -646,15 +661,24 @@ const UI = (() => {
           <div class="print-card-speed-box">
             <div class="print-card-speed">${r.wpm || 0}</div>
             <div class="print-card-speed-label">сл/мин</div>
+            <div style="font-size: 10pt; color: #64748b; margin-top: 8px;">${normStr}</div>
           </div>
           <div class="print-card-stats">
             <div>
-              <div class="print-card-section">Ошибки</div>
-              <div class="print-card-text">${errorsStr}</div>
+              <div class="print-card-section">Способ чтения</div>
+              <div class="print-card-text" style="font-size:12pt;">${methodStr}</div>
             </div>
             <div>
-              <div class="print-card-section">Осознанность</div>
-              <div class="print-card-text">${comp}</div>
+              <div class="print-card-section">Выразительность</div>
+              <div class="print-card-text" style="font-size:12pt;">${expText}</div>
+            </div>
+            <div>
+              <div class="print-card-section">Ошибки</div>
+              <div class="print-card-text" style="font-size:12pt;">${errorsStr}</div>
+            </div>
+            <div>
+              <div class="print-card-section">Ответы на вопросы</div>
+              <div class="print-card-text" style="font-size:12pt;">${comp}</div>
             </div>
           </div>
         </div>
