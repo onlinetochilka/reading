@@ -691,15 +691,16 @@ select {
 .class-card__info   { display: flex; align-items: center; gap: 10px; flex: 1; }
 .class-card__name   { font-size: 1.02rem; }
 .class-card__students { 
-  display: grid; 
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
-  gap: 8px; 
+  column-width: 250px;
+  column-gap: 8px; 
 }
 .student-list-item {
   display: flex; align-items: center; justify-content: space-between;
   background: #f8fafc; border: 1px solid #e2e8f0;
   border-radius: 6px; padding: 6px 10px; font-size: 0.85rem; font-weight: 500;
   color: var(--text); transition: all var(--transition);
+  break-inside: avoid;
+  margin-bottom: 8px;
 }
 .student-list-item:hover {
   background: var(--blue-pale); border-color: var(--blue-pale-md); color: var(--blue);
