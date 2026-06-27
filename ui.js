@@ -70,7 +70,7 @@ const UI = (() => {
     return count + ' учеников';
   }
 
-  function renderClasses(classes, container, { onDeleteClass, onDeleteStudent, onAddStudent } = {}) {
+  function renderClasses(classes, container, { onDeleteClass, onDeleteStudent, onAddStudent, onEditClass, onMoveStudent } = {}) {
     container.innerHTML = '';
     if (classes.length === 0) {
       container.innerHTML = `
@@ -93,6 +93,9 @@ const UI = (() => {
             <span class="badge">${getStudentDeclension(cls.students.length)}</span>
           </div>
           <div style="display: flex; gap: 6px;">
+            <button class="btn-icon btn--ghost" data-action="edit-class" data-class-id="${cls.id}" title="Переименовать класс" aria-label="Переименовать класс">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+            </button>
             <button class="btn-icon btn--ghost" data-action="add-student" data-class-id="${cls.id}" title="Добавить ученика" aria-label="Добавить ученика">
               <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>
             </button>
@@ -105,7 +108,12 @@ const UI = (() => {
           ${cls.students.map((s, i) => `
             <div class="student-list-item" tabindex="0">
               <span class="student-list-item__name">${i + 1}. ${escapeHtml(s.name)}</span>
-              <button class="btn-del-student" data-action="delete-student" data-class-id="${cls.id}" data-student-id="${s.id}" title="Удалить ученика">×</button>
+              <div style="display: flex; gap: 6px;">
+                <button class="btn-icon btn--ghost btn-move-student" data-action="move-student" data-class-id="${cls.id}" data-student-id="${s.id}" title="Перевести в другой класс" style="width: 24px; height: 24px; font-size: 10px;">
+                  <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8zM12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z"/></svg>
+                </button>
+                <button class="btn-del-student" data-action="delete-student" data-class-id="${cls.id}" data-student-id="${s.id}" title="Удалить ученика" style="width: 24px; height: 24px;">×</button>
+              </div>
             </div>`).join('')}
         </div>
       `;
@@ -114,10 +122,22 @@ const UI = (() => {
           onDeleteClass(e.currentTarget.dataset.classId);
         });
       }
+      if (onEditClass) {
+        card.querySelector('.btn-icon[data-action="edit-class"]').addEventListener('click', e => {
+          onEditClass(e.currentTarget.dataset.classId);
+        });
+      }
       if (onDeleteStudent) {
         card.querySelectorAll('.btn-del-student').forEach(btn => {
           btn.addEventListener('click', e => {
             onDeleteStudent(e.currentTarget.dataset.classId, e.currentTarget.dataset.studentId);
+          });
+        });
+      }
+      if (onMoveStudent) {
+        card.querySelectorAll('.btn-move-student').forEach(btn => {
+          btn.addEventListener('click', e => {
+            onMoveStudent(e.currentTarget.dataset.classId, e.currentTarget.dataset.studentId);
           });
         });
       }

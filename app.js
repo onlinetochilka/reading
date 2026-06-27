@@ -78,6 +78,17 @@ const App = (() => {
         renderStudents();
         UI.showToast('Класс удалён');
       },
+      onEditClass: classId => {
+        const cls = state.classes.find(c => c.id === classId);
+        if (!cls) return;
+        const newName = prompt('Введите новое название класса', cls.name);
+        if (newName && newName.trim() && newName.trim() !== cls.name) {
+          cls.name = newName.trim();
+          saveClasses();
+          renderStudents();
+          UI.showToast('Класс переименован');
+        }
+      },
       onDeleteStudent: (classId, studentId) => {
         const cls = state.classes.find(c => c.id === classId);
         if (!cls) return;
@@ -95,6 +106,27 @@ const App = (() => {
           saveClasses();
           renderStudents();
         });
+      },
+      onMoveStudent: (classId, studentId) => {
+        if (state.classes.length < 2) {
+          UI.showToast('Создайте еще один класс для перевода', 'error');
+          return;
+        }
+        state.moveStudentData = { classId, studentId };
+        
+        const select = document.getElementById('move-student-select');
+        select.innerHTML = '<option value="">— Выберите класс —</option>';
+        state.classes.forEach(c => {
+          if (c.id !== classId) {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.name;
+            select.appendChild(opt);
+          }
+        });
+        
+        document.getElementById('modal-move-student').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
       },
       onAddStudent: classId => {
         openAddStudentModal(classId);
@@ -173,6 +205,35 @@ const App = (() => {
     closeAddStudentModal();
     renderStudents();
     UI.showToast(`Ученик «${name}» добавлен`);
+  }
+
+  function closeMoveStudentModal() {
+    state.moveStudentData = null;
+    document.getElementById('modal-move-student').classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  function saveMoveStudent() {
+    if (!state.moveStudentData) return;
+    const { classId, studentId } = state.moveStudentData;
+    const targetClassId = document.getElementById('move-student-select').value;
+    if (!targetClassId) return;
+
+    const sourceClass = state.classes.find(c => c.id === classId);
+    const targetClass = state.classes.find(c => c.id === targetClassId);
+    if (!sourceClass || !targetClass) return;
+
+    const studentIndex = sourceClass.students.findIndex(s => s.id === studentId);
+    if (studentIndex === -1) return;
+
+    const [student] = sourceClass.students.splice(studentIndex, 1);
+    targetClass.students.push(student);
+    targetClass.students.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+
+    saveClasses();
+    closeMoveStudentModal();
+    renderStudents();
+    UI.showToast(`Ученик «${student.name}» переведен в «${targetClass.name}»`);
   }
 
   // ── LIBRARY TAB ───────────────────────────────────────────────────────────
@@ -1157,6 +1218,13 @@ const App = (() => {
     document.getElementById('student-name')?.addEventListener('input', handleStudentNameInput);
     document.getElementById('modal-add-student')?.addEventListener('click', e => {
       if (e.target === e.currentTarget) closeAddStudentModal();
+    });
+
+    document.getElementById('btn-cancel-move-student')?.addEventListener('click', closeMoveStudentModal);
+    document.getElementById('btn-cancel-move-student-2')?.addEventListener('click', closeMoveStudentModal);
+    document.getElementById('btn-save-move-student')?.addEventListener('click', saveMoveStudent);
+    document.getElementById('modal-move-student')?.addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeMoveStudentModal();
     });
 
     // Print tab
