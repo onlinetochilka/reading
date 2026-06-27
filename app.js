@@ -537,9 +537,17 @@ const App = (() => {
 
     // Clear self text
     const selfText = document.getElementById('text-display-self');
-    if (selfText) { selfText.innerHTML = ''; selfText.classList.remove('text-blurred'); }
+    if (selfText) {
+      selfText.innerHTML = `
+        <div class="text-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="36" height="36" stroke-width="1.2"><path d="M9 12h6M9 16h6M17 2H7a2 2 0 00-2 2v16a2 2 0 002 2h10a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg>
+          <p>Выберите текст и нажмите «Старт»</p>
+        </div>`;
+      selfText.classList.remove('text-blurred');
+      if (selfText.parentElement) selfText.parentElement.classList.remove('is-evaluating');
+    }
     const blurMsg = document.getElementById('blur-msg');
-    if (blurMsg) { blurMsg.textContent = ''; blurMsg.classList.remove('visible'); }
+    if (blurMsg) blurMsg.classList.remove('visible');
 
     // Reset student list column (render accordion)
     const activeClasses = state.classes.map(cls => ({
@@ -575,14 +583,14 @@ const App = (() => {
     });
 
     // ── Self mode panels ─────────────────────────────────────────────────
-    UI[cs === 'setup' ? 'show' : 'hide'](document.getElementById('check-setup-self'));
-    UI[cs !== 'setup' ? 'show' : 'hide'](document.getElementById('check-reading-self'));
+    UI.show(document.getElementById('check-setup-self'));
+    UI.show(document.getElementById('check-reading-self'));
 
-    const finishBtn = document.getElementById('btn-finish-self');
-    if (finishBtn) {
-      const unlim = document.getElementById('duration-select')?.value !== '60';
-      UI[cs === 'reading' && unlim ? 'show' : 'hide'](finishBtn);
-    }
+    const startSelfBtn = document.getElementById('btn-start-self');
+    const stopSelfBtn  = document.getElementById('btn-stop-self');
+
+    if (startSelfBtn) startSelfBtn.disabled = (cs !== 'setup');
+    if (stopSelfBtn)  stopSelfBtn.disabled  = (cs !== 'reading');
   }
 
   // ── CHECK TAB — TEACHER MODE ──────────────────────────────────────────────
