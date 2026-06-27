@@ -635,6 +635,44 @@ select {
 }
 .blur-overlay-msg.visible { opacity: 1; }
 
+/* ── Fullscreen Reading Overlay (Self Mode) ──────────────────────────────── */
+.reading-fullscreen-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+  overflow-y: auto;
+}
+.reading-fullscreen-overlay.hidden {
+  display: none;
+}
+.reading-fullscreen-content {
+  flex: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  background: white;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 40px;
+  position: relative;
+}
+.reading-fullscreen-actions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.reading-fullscreen-actions .btn--stop {
+  padding: 12px 32px;
+  font-size: 1.1rem;
+  border-radius: 30px;
+  box-shadow: 0 4px 12px rgba(138, 28, 51, 0.2);
+}
+
 /* ── Class Cards (Base tab) ──────────────────────────────────────────────── */
 .class-card__header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
 .class-card__info   { display: flex; align-items: center; gap: 10px; flex: 1; }
@@ -704,6 +742,39 @@ tbody tr:hover td { background: rgba(27,58,107,0.025); }
 .empty-logo  { width: 68px; height: 68px; opacity: 0.22; margin-bottom: 8px; }
 .empty-title { font-size: 1.2rem; color: rgba(27,58,107,0.58); }
 .empty-sub   { font-size: 0.88rem; color: rgba(27,58,107,0.4); max-width: 280px; }
+
+/* ── Checkboxes ──────────────────────────────────────────────────────────── */
+.checkbox-row {
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer; font-size: 0.95rem; font-weight: 500;
+  user-select: none;
+}
+.checkbox-row input[type="checkbox"] {
+  appearance: none;
+  width: 20px; height: 20px;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  display: grid; place-content: center;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.checkbox-row input[type="checkbox"]::before {
+  content: "";
+  width: 10px; height: 10px;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em white;
+  background-color: white;
+  transform-origin: center;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+.checkbox-row input[type="checkbox"]:checked {
+  background-color: var(--blue);
+  border-color: var(--blue);
+}
+.checkbox-row input[type="checkbox"]:checked::before {
+  transform: scale(1);
+}
 
 /* ── Modal ───────────────────────────────────────────────────────────────── */
 .modal-overlay {

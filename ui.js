@@ -331,9 +331,13 @@ const UI = (() => {
             ${i + 1}. ${escapeHtml(q.q)} 
             <span style="opacity:0.7">(${q.a ? escapeHtml(q.a) : 'Ответ не указан'})</span>
           </span>
-          <div class="question-btns" style="display:flex; gap:4px; flex-shrink:0;">
-            <button class="btn-answer btn-yes${cur?.correct === true  ? ' active' : ''}" data-action="answer-yes" data-qi="${i}" data-ans="true"  title="Верно" style="padding: 4px; background: transparent; border: 1px solid var(--border); border-radius: 4px;">✅</button>
-            <button class="btn-answer btn-no ${cur?.correct === false ? ' active' : ''}" data-action="answer-no" data-qi="${i}" data-ans="false" title="Неверно" style="padding: 4px; background: transparent; border: 1px solid var(--border); border-radius: 4px;">❌</button>
+          <div class="question-btns" style="display:flex; gap:8px; flex-shrink:0;">
+            <button class="btn-answer btn-yes${cur?.correct === true  ? ' active' : ''}" data-action="answer-yes" data-qi="${i}" data-ans="true"  title="Верно">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+            <button class="btn-answer btn-no ${cur?.correct === false ? ' active' : ''}" data-action="answer-no" data-qi="${i}" data-ans="false" title="Неверно">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
           </div>
         `;
         qContainer.appendChild(row);

@@ -317,49 +317,43 @@
                 <option value="3">3 класс</option>
                 <option value="4">4 класс</option>
               </select>
+              <label for="student-select-self" style="margin-right: 8px;">Ученик</label>
+              <select id="student-select-self" style="width: auto; margin-right: 12px;">
+                <option value="">—</option>
+              </select>
               <label for="text-select-self" style="margin-right: 8px;">Текст</label>
               <select id="text-select-self" data-action="select-text-self" style="flex:1;">
                 <option value="">— Выберите текст —</option>
               </select>
             </div>
           </div>
+          <button class="btn btn--start" id="btn-start-self" data-action="start-self-check" style="margin-top: 16px;">Начать чтение</button>
         </div>
       </div>
 
-      <!-- Reading area -->
-      <div id="check-reading-self" style="display:none">
-        
-        <div class="card check-col--controls" style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
-          <div class="timer-block" style="margin-bottom:0;">
-            <div id="timer-display-self">0:00</div>
-          </div>
-          <div class="control-btn-row">
-            <button class="btn btn--start control-btn" id="btn-start-self" data-action="start-self-check">
-              <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
-              Старт
-            </button>
-            <button class="btn btn--stop control-btn" id="btn-stop-self" data-action="stop-self-check" disabled>
-              <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd"/></svg>
-              Стоп
-            </button>
-            <button class="btn btn--ghost control-btn" id="btn-reset-self" data-action="reset-self-check">Сбросить</button>
-          </div>
-        </div>
-
-        <div class="card" style="position:relative;">
-          <div id="text-display-self" class="text-container">
+      <!-- Reading area (Full Screen Modal) -->
+      <div id="check-reading-self" class="reading-fullscreen-overlay hidden">
+        <div class="reading-fullscreen-content">
+          <div id="text-display-self" class="text-container" style="font-size: 1.25rem;">
             <div class="text-placeholder">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="36" height="36" stroke-width="1.2"><path d="M9 12h6M9 16h6M17 2H7a2 2 0 00-2 2v16a2 2 0 002 2h10a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg>
-              <p>Выберите текст и нажмите «Старт»</p>
+              <p>Текст загружается...</p>
             </div>
           </div>
           <div id="blur-msg" class="blur-overlay-msg"></div>
           
-          <div id="eval-button-container" style="display:none; text-align:center; margin-top:16px;">
-            <button class="btn btn--primary" id="btn-proceed-eval" data-action="proceed-to-evaluation">
+          <div id="eval-button-container" style="display:none; text-align:center; margin-top:24px;">
+            <button class="btn btn--primary btn-lg" id="btn-proceed-eval" data-action="proceed-to-evaluation">
               Перейти к оценке
             </button>
           </div>
+        </div>
+        
+        <div class="reading-fullscreen-actions">
+          <button class="btn btn--stop control-btn" id="btn-stop-self" data-action="stop-self-check">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd"/></svg>
+            Завершить чтение
+          </button>
         </div>
       </div>
 
@@ -528,17 +522,17 @@
         <div class="reading-method-section" id="reading-method-container" style="margin-top: 24px;">
           <h4>Способ чтения</h4>
           <div class="segmented-control" style="margin-top: 8px;">
-            <input type="radio" name="reading-method" id="rm-letters" value="Буквенный" />
-            <label for="rm-letters">Буквенный</label>
-            <input type="radio" name="reading-method" id="rm-syllables" value="Слоговой" />
-            <label for="rm-syllables">Слоговой</label>
-            <input type="radio" name="reading-method" id="rm-words-syllables" value="Слоги + слова" />
-            <label for="rm-words-syllables">Слоги + слова</label>
-            <input type="radio" name="reading-method" id="rm-words" value="Целыми словами" />
-            <label for="rm-words">Целыми словами</label>
+            <input type="radio" name="reading-method-modal" id="rm-letters-modal" value="Буквенный" />
+            <label for="rm-letters-modal">Буквенный</label>
+            <input type="radio" name="reading-method-modal" id="rm-syllables-modal" value="Слоговой" />
+            <label for="rm-syllables-modal">Слоговой</label>
+            <input type="radio" name="reading-method-modal" id="rm-words-syllables-modal" value="Слоги + слова" />
+            <label for="rm-words-syllables-modal">Слоги + слова</label>
+            <input type="radio" name="reading-method-modal" id="rm-words-modal" value="Целыми словами" />
+            <label for="rm-words-modal">Целыми словами</label>
           </div>
           <label class="checkbox-row" style="margin-top: 12px;">
-            <input type="checkbox" id="rm-orthographic" />
+            <input type="checkbox" id="rm-orthographic-modal" />
             <span>Орфографическое чтение</span>
           </label>
         </div>
@@ -549,13 +543,13 @@
         <h4>Выразительность</h4>
         <div class="expressiveness-section" style="margin-top: 8px; display: flex; flex-direction: column; gap: 12px;">
           <div class="segmented-control">
-            <input type="radio" name="exp-monotone-radio" id="exp-expressive" value="false" checked />
-            <label for="exp-expressive">Читает с выражением</label>
-            <input type="radio" name="exp-monotone-radio" id="exp-monotone" value="true" />
-            <label for="exp-monotone">Монотонно</label>
+            <input type="radio" name="exp-monotone-radio-modal" id="exp-expressive-modal" value="false" checked />
+            <label for="exp-expressive-modal">Читает с выражением</label>
+            <input type="radio" name="exp-monotone-radio-modal" id="exp-monotone-modal" value="true" />
+            <label for="exp-monotone-modal">Монотонно</label>
           </div>
           <label class="checkbox-row" style="margin-top: 4px;">
-            <input type="checkbox" id="exp-ignore-signs" />
+            <input type="checkbox" id="exp-ignore-signs-modal" />
             <span>Игнорирует знаки препинания</span>
           </label>
         </div>

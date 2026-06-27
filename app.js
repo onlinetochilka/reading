@@ -488,6 +488,7 @@ const App = (() => {
     // Populate selects
     UI.renderTextSelect(state.texts, document.getElementById('text-select-teacher'));
     UI.renderTextSelect(state.texts, document.getElementById('text-select-self'));
+    UI.renderStudentSelect(state.classes, document.getElementById('student-select-self'));
 
     // Show correct mode panel
     UI[mode === 'teacher' ? 'show' : 'hide'](document.getElementById('check-teacher'));
@@ -572,25 +573,43 @@ const App = (() => {
     if (stopBtn)    stopBtn.disabled    = (cs !== 'reading');
     if (analyzeBtn) analyzeBtn.disabled = (cs !== 'word-select');
 
-    // Error counter buttons active only while reading
+    // Error counter buttons active only while reading (excluding modal buttons)
     document.querySelectorAll('.error-counter-btn').forEach(btn => {
-      btn.disabled = (cs !== 'reading');
+      if (!btn.id.includes('-modal')) {
+        btn.disabled = (cs !== 'reading');
+      }
     });
 
-    // Reading method toggle active only while reading
+    // Reading method toggle active only while reading (excluding modal)
     document.querySelectorAll('input[name="reading-method"]').forEach(radio => {
       radio.disabled = (cs !== 'reading');
     });
 
     // ── Self mode panels ─────────────────────────────────────────────────
     UI.show(document.getElementById('check-setup-self'));
-    UI.show(document.getElementById('check-reading-self'));
+    
+    const readingSelf = document.getElementById('check-reading-self');
+    if (readingSelf) {
+      if (cs !== 'setup') {
+        readingSelf.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // prevent background scrolling
+      } else {
+        readingSelf.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+    }
 
     const startSelfBtn = document.getElementById('btn-start-self');
     const stopSelfBtn  = document.getElementById('btn-stop-self');
 
     if (startSelfBtn) startSelfBtn.disabled = (cs !== 'setup');
-    if (stopSelfBtn)  stopSelfBtn.disabled  = (cs !== 'reading');
+    if (stopSelfBtn) {
+      if (cs === 'reading') {
+        stopSelfBtn.style.display = '';
+      } else {
+        stopSelfBtn.style.display = 'none';
+      }
+    }
   }
 
   // ── CHECK TAB — TEACHER MODE ──────────────────────────────────────────────
@@ -703,13 +722,32 @@ const App = (() => {
 
   function startSelfCheck() {
     const textId = document.getElementById('text-select-self').value;
+    const studentCompositeId = document.getElementById('student-select-self').value;
+    
     if (!textId) { UI.showToast('Выберите текст', 'error'); return; }
+    if (!studentCompositeId) { UI.showToast('Выберите ученика', 'error'); return; }
 
     const textData = state.texts.find(t => t.id === textId);
     if (!textData) { UI.showToast('Текст не найден', 'error'); return; }
 
+    // `studentCompositeId` is something like "classId::studentId". Wait, what does `renderStudentSelect` output for `value`?
+    // Let's check `renderStudentSelect` in ui.js. It outputs `<option value="${s.id}">`.
+    // Wait, we need both classId and studentId. But `state.classes` has `cls.students.find(s => s.id === studentId)`.
+    // Student IDs are unique globally across classes.
+    let foundStudent = null;
+    let foundClass = null;
+    for (const c of state.classes) {
+      const s = c.students.find(st => String(st.id) === String(studentCompositeId));
+      if (s) { foundStudent = s; foundClass = c; break; }
+    }
+
     Object.assign(state.session, {
       textId, textTitle: textData.title,
+      studentId: foundStudent?.id,
+      studentName: foundStudent?.name,
+      classId: foundClass?.id,
+      className: foundClass?.name,
+      grade: foundClass ? gradeFromClassName(foundClass.name) : null,
     });
     
     ['distortion','accent','ending','regression'].forEach(k => {
@@ -778,7 +816,25 @@ const App = (() => {
 
   function saveResult() {
     const session = state.session;
-    const rmChecked = document.querySelector('input[name="reading-method"]:checked');
+    const isModal = (state.checkMode === 'self' || session.checkMode === 'self' || document.getElementById('modal-overlay').classList.contains('hidden') === false);
+    
+    let rmChecked;
+    let isMonotone;
+    let ignoreSigns;
+    let orthographic;
+
+    if (isModal) {
+      rmChecked = document.querySelector('input[name="reading-method-modal"]:checked');
+      isMonotone = document.querySelector('input[name="exp-monotone-radio-modal"]:checked')?.value === 'true';
+      ignoreSigns = document.getElementById('exp-ignore-signs-modal')?.checked ?? false;
+      orthographic = document.getElementById('rm-orthographic-modal')?.checked ?? false;
+    } else {
+      rmChecked = document.querySelector('input[name="reading-method"]:checked');
+      isMonotone = document.querySelector('input[name="exp-monotone-radio"]:checked')?.value === 'true';
+      ignoreSigns = document.getElementById('exp-ignore-signs')?.checked ?? false;
+      orthographic = document.getElementById('rm-orthographic')?.checked ?? false;
+    }
+
     if (!rmChecked) {
       const rmSection = document.getElementById('reading-method-container');
       if (rmSection) {
@@ -791,12 +847,11 @@ const App = (() => {
     }
     session.readingMethod = rmChecked.value;
 
-    const isMonotone = document.querySelector('input[name="exp-monotone-radio"]:checked')?.value === 'true';
     session.expressiveness = {
-      ignoreSigns:  document.getElementById('exp-ignore-signs')?.checked  ?? false,
+      ignoreSigns:  ignoreSigns,
       monotone:     isMonotone,
     };
-    session.orthographicReading = document.getElementById('rm-orthographic')?.checked ?? false;
+    session.orthographicReading = orthographic;
 
     if (session.comprehension && session.comprehension.length > 0) {
       const correct = session.comprehension.filter(c => c && c.correct).length;
@@ -1199,11 +1254,20 @@ const App = (() => {
 
     document.getElementById('text-class-filter-self')?.addEventListener('change', (e) => {
       const val = e.target.value;
-      const filtered = val ? state.texts.filter(t => t.grade === parseInt(val)) : state.texts;
-      const selectEl = document.getElementById('text-select-self');
-      UI.renderTextSelect(filtered, selectEl);
-      if (filtered.length === 0) {
-        selectEl.innerHTML = '<option value="" disabled selected>Тексты не найдены</option>';
+      // Filter texts
+      const filteredTexts = val ? state.texts.filter(t => t.grade === parseInt(val)) : state.texts;
+      const textSelectEl = document.getElementById('text-select-self');
+      UI.renderTextSelect(filteredTexts, textSelectEl);
+      if (filteredTexts.length === 0) {
+        textSelectEl.innerHTML = '<option value="" disabled selected>Тексты не найдены</option>';
+      }
+      
+      // Filter students
+      const filteredClasses = val ? state.classes.filter(c => gradeFromClassName(c.name) === parseInt(val)) : state.classes;
+      const studentSelectEl = document.getElementById('student-select-self');
+      UI.renderStudentSelect(filteredClasses, studentSelectEl);
+      if (filteredClasses.length === 0 || filteredClasses.every(c => c.students.length === 0)) {
+        studentSelectEl.innerHTML = '<option value="" disabled selected>Ученики не найдены</option>';
       }
     });
 
