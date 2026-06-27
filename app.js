@@ -2,12 +2,12 @@
 
 // ── Firebase Configuration ────────────────────────────────────────────────
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyB0Rn1j_PFIl3XlJiT_JvjFSySWHiur01w",
+  authDomain: "tochilka-reading.firebaseapp.com",
+  projectId: "tochilka-reading",
+  storageBucket: "tochilka-reading.firebasestorage.app",
+  messagingSenderId: "137874579843",
+  appId: "1:137874579843:web:ece2aa6e6182f6362456b6"
 };
 // Initialize Firebase
 if (typeof firebase !== 'undefined' && !firebase.apps.length) {
