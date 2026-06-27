@@ -252,27 +252,27 @@
           <div class="controls-divider"></div>
 
           <!-- Error counters (3 types as tap-buttons) -->
-          <div class="error-counters" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 0;">
+          <div class="error-counters" style="display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 0;">
             <button class="error-counter-btn error-btn" id="btn-distortion" data-action="error-distortion" disabled title="ЛКМ = +1, ПКМ = -1">
-              <div class="error-btn-content" style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%;">
+              <div class="error-btn-content" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
                 <span class="error-name">Искажение</span>
                 <span class="counter-val" id="counter-distortion" style="font-size: 1.2rem; font-weight: 700;">0</span>
               </div>
             </button>
             <button class="error-counter-btn error-btn" id="btn-accent" data-action="error-accent" disabled title="ЛКМ = +1, ПКМ = -1">
-              <div class="error-btn-content" style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%;">
+              <div class="error-btn-content" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
                 <span class="error-name">Ударение</span>
                 <span class="counter-val" id="counter-accent" style="font-size: 1.2rem; font-weight: 700;">0</span>
               </div>
             </button>
             <button class="error-counter-btn error-btn" id="btn-regression" data-action="error-regression" disabled title="ЛКМ = +1, ПКМ = -1">
-              <div class="error-btn-content" style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%;">
+              <div class="error-btn-content" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
                 <span class="error-name">Повтор</span>
                 <span class="counter-val" id="counter-regression" style="font-size: 1.2rem; font-weight: 700;">0</span>
               </div>
             </button>
           </div>
-          <p class="error-counters-hint muted" style="font-size: 0.8rem; text-align: center; margin-top: 8px;">Клик: +1 ошибка &bull; Правый клик: -1</p>
+          <p class="error-counters-hint muted" style="font-size: 0.8rem; text-align: center; margin-top: 8px;">левый клик +1, правый клик -1</p>
 
 
 
