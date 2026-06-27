@@ -1216,7 +1216,7 @@ body.print-landscape #print-content-wrapper {
 ════════════════════════════════════════════════════════════════════════ */
 @media print {
   @page {
-    size: A4 landscape;
+    size: A4 portrait;
     margin: 10mm;
   }
 
@@ -1236,8 +1236,8 @@ body.print-landscape #print-content-wrapper {
 
   /* Journal Cards Print Grid */
   .print-cards-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 10mm;
     width: 100%;
   }
