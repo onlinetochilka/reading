@@ -771,16 +771,21 @@ const App = (() => {
       session.readingMethod = rmChecked.value;
 
       // Collect expressiveness from the modal checkboxes
+      // Collect expressiveness from the modal radio and checkbox
+      const isMonotone = document.querySelector('input[name="exp-monotone-radio"]:checked')?.value === 'true';
       session.expressiveness = {
         ignoreSigns:  document.getElementById('exp-ignore-signs')?.checked  ?? false,
-        monotone:     document.getElementById('exp-monotone')?.checked      ?? false,
+        monotone:     isMonotone,
       };
+
+      // Collect orthographic reading
+      session.orthographicReading = document.getElementById('rm-orthographic')?.checked ?? false;
     }
 
     if (session.comprehension && session.comprehension.length > 0) {
       const correct = session.comprehension.filter(c => c && c.correct).length;
       const total = session.comprehension.length;
-      session.comprehensionScore = `${correct} / ${total}`;
+      session.comprehensionScore = { correct, total };
       delete session.comprehension;
     }
 
@@ -1060,39 +1065,6 @@ const App = (() => {
   // ── Event Binding ─────────────────────────────────────────────────────────
 
   function bindEvents() {
-    // Global hotkeys
-    document.addEventListener('keydown', e => {
-      // Ignore if inside an input, textarea or select
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
-
-      if (e.code === 'Space') {
-        if (state.checkMode === 'teacher') {
-          if (state.checkState === 'setup' && !document.getElementById('btn-start-teacher').disabled) {
-            e.preventDefault();
-            startTeacherCheck();
-          } else if (state.checkState === 'reading' && !document.getElementById('btn-stop-teacher').disabled) {
-            e.preventDefault();
-            stopTeacherCheck();
-          }
-        }
-      }
-
-      if (state.checkState === 'reading') {
-        const keyMap = { 'Digit1': 'distortion', 'Digit2': 'accent', 'Digit3': 'ending', 'Digit4': 'regression' };
-        if (keyMap[e.code]) {
-          e.preventDefault();
-          const err = keyMap[e.code];
-          if (e.shiftKey) {
-            if (state.session.errors[err] > 0) state.session.errors[err]--;
-          } else {
-            state.session.errors[err]++;
-          }
-          const el = document.getElementById(`counter-${err}`);
-          if (el) el.textContent = state.session.errors[err];
-        }
-      }
-    });
-
     // Tabs
     document.querySelectorAll('.tab-btn').forEach(btn =>
       btn.addEventListener('click', () => switchTab(btn.dataset.tab))

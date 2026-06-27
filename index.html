@@ -182,10 +182,10 @@
               <label for="text-class-filter" style="margin-right: 8px;">Класс</label>
               <select id="text-class-filter" data-action="filter-text-class" style="width: auto; margin-right: 12px;">
                 <option value="">Все</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
+                <option value="1">1 класс</option>
+                <option value="2">2 класс</option>
+                <option value="3">3 класс</option>
+                <option value="4">4 класс</option>
               </select>
               <label for="text-select-teacher" style="margin-right: 8px;">Текст</label>
               <select id="text-select-teacher" data-action="select-text-teacher" style="flex:1;">
@@ -245,54 +245,36 @@
             </button>
             <button class="btn btn--analyze control-btn" id="btn-analyze-teacher" data-action="analyze-teacher-check" disabled>
               <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9zM4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
-              Анализ
+              Оценить чтение
             </button>
           </div>
 
           <div class="controls-divider"></div>
 
-          <!-- Error counters (4 types as tap-buttons) -->
-          <div class="error-counters" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <!-- Error counters (3 types as tap-buttons) -->
+          <div class="error-counters" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 0;">
             <button class="error-counter-btn error-btn" id="btn-distortion" data-action="error-distortion" disabled title="ЛКМ = +1, ПКМ = -1">
-              <div class="error-btn-content" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
-                <span class="error-name" style="font-weight: 500;">Искажение <span class="hotkey-hint" style="opacity: 0.4; font-size: 0.8rem; margin-left: 4px;">[1]</span></span>
+              <div class="error-btn-content" style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%;">
+                <span class="error-name">Искажение</span>
+                <span class="counter-val" id="counter-distortion" style="font-size: 1.2rem; font-weight: 700; color: var(--blue);">0</span>
               </div>
-              <span class="counter-val" id="counter-distortion">0</span>
             </button>
             <button class="error-counter-btn error-btn" id="btn-accent" data-action="error-accent" disabled title="ЛКМ = +1, ПКМ = -1">
-              <div class="error-btn-content" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
-                <span class="error-name" style="font-weight: 500;">Ударение <span class="hotkey-hint" style="opacity: 0.4; font-size: 0.8rem; margin-left: 4px;">[2]</span></span>
+              <div class="error-btn-content" style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%;">
+                <span class="error-name">Ударение</span>
+                <span class="counter-val" id="counter-accent" style="font-size: 1.2rem; font-weight: 700; color: var(--blue);">0</span>
               </div>
-              <span class="counter-val" id="counter-accent">0</span>
-            </button>
-            <button class="error-counter-btn error-btn" id="btn-ending" data-action="error-ending" disabled title="ЛКМ = +1, ПКМ = -1">
-              <div class="error-btn-content" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
-                <span class="error-name" style="font-weight: 500;">Окончание <span class="hotkey-hint" style="opacity: 0.4; font-size: 0.8rem; margin-left: 4px;">[3]</span></span>
-              </div>
-              <span class="counter-val" id="counter-ending">0</span>
             </button>
             <button class="error-counter-btn error-btn" id="btn-regression" data-action="error-regression" disabled title="ЛКМ = +1, ПКМ = -1">
-              <div class="error-btn-content" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
-                <span class="error-name" style="font-weight: 500;">Повтор <span class="hotkey-hint" style="opacity: 0.4; font-size: 0.8rem; margin-left: 4px;">[4]</span></span>
+              <div class="error-btn-content" style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%;">
+                <span class="error-name">Повтор</span>
+                <span class="counter-val" id="counter-regression" style="font-size: 1.2rem; font-weight: 700; color: var(--blue);">0</span>
               </div>
-              <span class="counter-val" id="counter-regression">0</span>
             </button>
           </div>
+          <p class="error-counters-hint muted" style="font-size: 0.8rem; text-align: center; margin-top: 8px;">Клик: +1 ошибка &bull; Правый клик: -1</p>
 
-          <!-- Reading method toggle -->
-          <div class="reading-method-section" style="margin: 14px 0;">
-            <h4 class="check-col__label">Способ чтения</h4>
-            <div class="segmented-control">
-              <input type="radio" name="reading-method" id="rm-letters" value="По буквам" disabled />
-              <label for="rm-letters">Буквами</label>
-              <input type="radio" name="reading-method" id="rm-syllables" value="По слогам" disabled />
-              <label for="rm-syllables">Слогами</label>
-              <input type="radio" name="reading-method" id="rm-words-syllables" value="Слова + слоги" disabled />
-              <label for="rm-words-syllables" title="Слова + слоги">Сл+слг</label>
-              <input type="radio" name="reading-method" id="rm-words" value="Целыми словами" disabled />
-              <label for="rm-words">Словами</label>
-            </div>
-          </div>
+
 
           <div class="controls-divider"></div>
 
@@ -492,7 +474,7 @@
 
     <div class="modal__header">
       <div>
-        <h2 class="modal__title">Итоги проверки</h2>
+        <h2 class="modal__title">Качество и понимание</h2>
         <p class="modal__meta">
           <span id="modal-student">—</span>&nbsp;·&nbsp;
           <span id="modal-text-title">—</span>&nbsp;·&nbsp;
@@ -524,23 +506,39 @@
       </div>
     </div>
 
-    <!-- Smart Summary -->
-    <div id="modal-summary-section" class="modal-section" style="display:none">
-      <h4>Методический вывод</h4>
-      <p id="modal-summary-text" style="font-size:0.95rem; color:var(--blue); line-height:1.5; font-weight:500;"></p>
-    </div>
+    <!-- Smart Summary (Moved to bottom) -->
 
-    <!-- Teacher-only expressiveness -->
+    <!-- Teacher-only expressiveness and reading method -->
     <div id="modal-teacher-section" class="modal-section">
-      <h4>Выразительность</h4>
-      <div class="expressiveness-section" style="margin-top: 12px;">
-        <label class="checkbox-row">
-          <input type="checkbox" id="exp-ignore-signs" />
-          <span>Игнорирование знаков</span>
+      <div class="reading-method-section" style="margin-bottom: 16px;">
+        <h4>Способ чтения</h4>
+        <div class="segmented-control" style="margin-top: 8px;">
+          <input type="radio" name="reading-method" id="rm-letters" value="Буквенный" />
+          <label for="rm-letters">Буквенный</label>
+          <input type="radio" name="reading-method" id="rm-syllables" value="Слоговой" />
+          <label for="rm-syllables">Слоговой</label>
+          <input type="radio" name="reading-method" id="rm-words-syllables" value="Слоги + слова" />
+          <label for="rm-words-syllables">Слоги + слова</label>
+          <input type="radio" name="reading-method" id="rm-words" value="Целыми словами" />
+          <label for="rm-words">Целыми словами</label>
+        </div>
+        <label class="checkbox-row" style="margin-top: 12px;">
+          <input type="checkbox" id="rm-orthographic" />
+          <span>Орфографическое чтение</span>
         </label>
-        <label class="checkbox-row">
-          <input type="checkbox" id="exp-monotone" />
-          <span>Монотонность</span>
+      </div>
+
+      <h4>Выразительность</h4>
+      <div class="expressiveness-section" style="margin-top: 8px; display: flex; flex-direction: column; gap: 12px;">
+        <div class="segmented-control">
+          <input type="radio" name="exp-monotone-radio" id="exp-expressive" value="false" checked />
+          <label for="exp-expressive">Читает с выражением</label>
+          <input type="radio" name="exp-monotone-radio" id="exp-monotone" value="true" />
+          <label for="exp-monotone">Монотонно</label>
+        </div>
+        <label class="checkbox-row" style="margin-top: 4px;">
+          <input type="checkbox" id="exp-ignore-signs" />
+          <span>Игнорирует знаки препинания</span>
         </label>
       </div>
     </div>
@@ -551,9 +549,15 @@
       <div id="modal-questions"></div>
     </div>
 
+    <!-- Smart Summary (Moved to bottom) -->
+    <div id="modal-summary-section" class="modal-section" style="display:none; margin-top: 16px;">
+      <h4>Методический вывод</h4>
+      <p id="modal-summary-text" style="font-size:0.95rem; color:var(--blue); line-height:1.5; font-weight:500;"></p>
+    </div>
+
     <div class="modal__actions">
-      <button class="btn btn--ghost" id="btn-cancel-modal-2" data-action="close-modal">Отмена</button>
-      <button class="btn btn--primary" id="btn-save-result" data-action="save-check-result">
+      <button type="button" class="btn btn--ghost" id="btn-cancel-modal-2" data-action="close-modal">Отмена</button>
+      <button type="button" class="btn btn--primary" id="btn-save-result" data-action="save-check-result">
         <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
         Сохранить результат
       </button>

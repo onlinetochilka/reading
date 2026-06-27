@@ -341,10 +341,13 @@ const UI = (() => {
         row.style.marginBottom = '8px';
         row.style.gap = '12px';
         row.innerHTML = `
-          <span class="question-text" style="flex:1; font-size:0.9rem; line-height:1.3;">${i + 1}. ${escapeHtml(q.q)}</span>
+          <span class="question-text" style="flex:1; font-size:0.9rem; line-height:1.3;">
+            ${i + 1}. ${escapeHtml(q.q)} 
+            <span style="opacity:0.7">(${q.a ? escapeHtml(q.a) : 'Ответ не указан'})</span>
+          </span>
           <div class="question-btns" style="display:flex; gap:4px; flex-shrink:0;">
-            <button class="btn-answer btn-yes${cur?.correct === true  ? ' active' : ''}" data-action="answer-yes" data-qi="${i}" data-ans="true"  title="Верно">Верно</button>
-            <button class="btn-answer btn-no ${cur?.correct === false ? ' active' : ''}" data-action="answer-no" data-qi="${i}" data-ans="false" title="Неверно">Неверно</button>
+            <button class="btn-answer btn-yes${cur?.correct === true  ? ' active' : ''}" data-action="answer-yes" data-qi="${i}" data-ans="true"  title="Верно" style="padding: 4px; background: transparent; border: 1px solid var(--border); border-radius: 4px;">✅</button>
+            <button class="btn-answer btn-no ${cur?.correct === false ? ' active' : ''}" data-action="answer-no" data-qi="${i}" data-ans="false" title="Неверно" style="padding: 4px; background: transparent; border: 1px solid var(--border); border-radius: 4px;">❌</button>
           </div>
         `;
         qContainer.appendChild(row);
