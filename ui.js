@@ -224,7 +224,7 @@ const UI = (() => {
 
   // ── Statistics Table ──────────────────────────────────────────────────────
 
-  function renderStatistics(results) {
+  function renderStatistics(results, selectedSet = new Set()) {
     const emptyEl   = document.getElementById('stats-empty');
     const wrapperEl = document.getElementById('stats-table-wrapper');
     const tbody     = document.querySelector('#stats-table tbody');
@@ -244,6 +244,9 @@ const UI = (() => {
 
     sorted.forEach(r => {
       const tr   = document.createElement('tr');
+      tr.style.cursor = 'pointer'; // Make row clickable for modal
+      tr.dataset.rid = r.id;       // Add ID to row for easy access
+      
       const date = new Date(r.date).toLocaleDateString('ru-RU');
 
       const totalErrors =
@@ -253,10 +256,9 @@ const UI = (() => {
         (r.errors?.regression || 0);
 
       const normResult = r.grade ? Assessment.compareWithNorm(r.wpm, r.grade, r.date) : 'unknown';
-      const wpmClass   =
-        normResult === 'above'  ? 'wpm--above'  :
-        normResult === 'below'  ? 'wpm--below'  :
-        normResult === 'normal' ? 'wpm--normal' : '';
+      const statusClass = normResult === 'above' ? 'good' :
+                          normResult === 'normal' ? 'good' :
+                          normResult === 'below' ? 'critical' : '';
 
       const comp = r.comprehensionScore ? r.comprehensionScore :
                    Array.isArray(r.comprehension) && r.comprehension.length
@@ -266,20 +268,20 @@ const UI = (() => {
       const modeLabel = r.mode === 'self' ? '<span class="badge badge--self">Экран</span>' : '<span class="badge badge--teacher">Бумага</span>';
 
       tr.innerHTML = `
+        <td style="text-align: center;">
+          <input type="checkbox" class="row-checkbox" value="${r.id}" ${selectedSet.has(String(r.id)) ? 'checked' : ''}>
+        </td>
         <td>${date}</td>
         <td>
           ${escapeHtml(r.studentName || '—')}
           ${r.studentId ? `<button class="btn-icon btn--ghost btn-chart" style="width:24px;height:24px;margin-left:4px;font-size:12px;" data-student-id="${r.studentId}" data-student-name="${escapeHtml(r.studentName || '')}" title="График динамики">📈</button>` : ''}
-          <div style="font-size: 0.75rem; color: rgba(27,58,107,0.6); margin-top: 4px; line-height: 1.3; max-width: 250px;">
-            ${escapeHtml(Assessment.generateSmartSummary(r))}
-          </div>
         </td>
         <td>${escapeHtml(r.className  || '—')}</td>
         <td>${escapeHtml(r.textTitle  || '—')}</td>
         <td class="wpm-cell">
           <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
             ${r.wpm || 0}
-            ${normResult !== 'unknown' ? `<span class="norm-dot norm-dot--${normResult}"></span>` : ''}
+            ${statusClass ? `<span class="status-dot ${statusClass}"></span>` : ''}
           </div>
         </td>
         <td>${totalErrors > 0 ? totalErrors : '—'}</td>
@@ -502,6 +504,103 @@ const UI = (() => {
     });
   }
 
+  // ── Student Card Dialog (Journal) ─────────────────────────────────────────
+
+  function showStudentCardModal(result) {
+    const dialog = document.getElementById('student-card-modal');
+    if (!dialog) return;
+    
+    document.getElementById('student-card-name').textContent = result.studentName || '—';
+    document.getElementById('student-card-wpm').textContent = result.wpm || 0;
+    
+    const normResult = result.grade ? Assessment.compareWithNorm(result.wpm, result.grade, result.date) : 'unknown';
+    const statusClass = normResult === 'above' ? 'good' :
+                        normResult === 'normal' ? 'good' :
+                        normResult === 'below' ? 'critical' : '';
+    const statusDot = document.getElementById('student-card-status');
+    statusDot.className = 'status-dot'; // reset
+    if (statusClass) statusDot.classList.add(statusClass);
+
+    const errorsList = document.getElementById('student-card-errors');
+    errorsList.innerHTML = '';
+    
+    const errors = [];
+    if (result.errors?.distortion) errors.push(`Искажения: ${result.errors.distortion}`);
+    if (result.errors?.accent) errors.push(`Неверные ударения: ${result.errors.accent}`);
+    if (result.errors?.ending) errors.push(`Ошибки в окончаниях: ${result.errors.ending}`);
+    if (result.errors?.regression) errors.push(`Регрессии: ${result.errors.regression}`);
+    
+    if (errors.length === 0) {
+      errorsList.innerHTML = '<li>Технических ошибок не зафиксировано</li>';
+    } else {
+      errors.forEach(e => {
+        const li = document.createElement('li');
+        li.textContent = e;
+        errorsList.appendChild(li);
+      });
+    }
+
+    const comp = Array.isArray(result.comprehension) && result.comprehension.length
+                   ? `${result.comprehension.filter(c => c.correct).length} из ${result.comprehension.length}`
+                   : (result.comprehensionScore || '—');
+    document.getElementById('student-card-comp').textContent = comp;
+    
+    // Store result id on the print button for single card printing
+    document.getElementById('btn-print-single-card').dataset.rid = result.id;
+
+    dialog.showModal();
+
+    // Light-dismiss logic
+    dialog.addEventListener('click', function onClickOutside(e) {
+      const rect = dialog.getBoundingClientRect();
+      if (e.clientX < rect.left || e.clientX > rect.right || 
+          e.clientY < rect.top || e.clientY > rect.bottom) {
+        dialog.close();
+        dialog.removeEventListener('click', onClickOutside);
+      }
+    });
+  }
+
+  function renderPrintJournalCards(results) {
+    const container = document.getElementById('print-container');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="print-cards-grid"></div>';
+    const grid = container.querySelector('.print-cards-grid');
+    
+    results.forEach(r => {
+      const card = document.createElement('div');
+      card.className = 'print-card';
+      
+      const errorsList = [];
+      if (r.errors?.distortion) errorsList.push(`Искажения: ${r.errors.distortion}`);
+      if (r.errors?.accent) errorsList.push(`Ударения: ${r.errors.accent}`);
+      if (r.errors?.ending) errorsList.push(`Окончания: ${r.errors.ending}`);
+      if (r.errors?.regression) errorsList.push(`Регрессии: ${r.errors.regression}`);
+      const errorsStr = errorsList.length > 0 ? errorsList.join(', ') : 'Ошибок нет';
+      
+      const comp = Array.isArray(r.comprehension) && r.comprehension.length
+                   ? `${r.comprehension.filter(c => c.correct).length} из ${r.comprehension.length}`
+                   : (r.comprehensionScore || '—');
+
+      const dateStr = new Date(r.date).toLocaleDateString('ru-RU');
+
+      card.innerHTML = `
+        <div class="print-card-name">${escapeHtml(r.studentName || '—')}</div>
+        <div style="font-size:10pt; color:#666; margin-bottom:15px;">Дата: ${dateStr}</div>
+        <div class="print-card-speed">
+          ${r.wpm || 0}
+          <span class="print-card-speed-label">сл/мин</span>
+        </div>
+        <div class="print-card-section">Ошибки</div>
+        <p class="print-card-text">${errorsStr}</p>
+        <div class="print-card-section">Осознанность</div>
+        <p class="print-card-text">${comp}</p>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
   // ── Library List ──────────────────────────────────────────────────────────
 
   function renderLibraryList(texts, container, selectedIds = []) {
@@ -564,5 +663,7 @@ const UI = (() => {
     renderPrintBlank,
     renderStudentListForCheck,
     renderLibraryList,
+    showStudentCardModal,
+    renderPrintJournalCards,
   };
 })();

@@ -43,7 +43,7 @@
     <button class="tab-btn active" data-tab="students"   data-action="tab-students" role="tab">Ученики</button>
     <button class="tab-btn"        data-tab="library"    data-action="tab-library" role="tab">Библиотека</button>
     <button class="tab-btn"        data-tab="check"      data-action="tab-check" role="tab">Проверка</button>
-    <button class="tab-btn"        data-tab="statistics" data-action="tab-statistics" role="tab">Статистика</button>
+    <button class="tab-btn"        data-tab="statistics" data-action="tab-statistics" role="tab">Журнал</button>
   </nav>
 
 
@@ -367,7 +367,7 @@
 
 
   <!-- ══════════════════════════════════════════════════════════════════════
-       TAB: СТАТИСТИКА
+       TAB: ЖУРНАЛ
   ════════════════════════════════════════════════════════════════════════ -->
   <div id="tab-statistics" class="tab-content" role="tabpanel">
 
@@ -386,7 +386,7 @@
         </button>
         <button class="btn btn--secondary" id="btn-export-csv" data-action="export-csv">
           <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-          Сохранить отчет
+          Экспорт журнала (CSV)
         </button>
       </div>
     </div>
@@ -403,6 +403,9 @@
       <table id="stats-table">
         <thead>
           <tr>
+            <th style="width: 40px; text-align: center;">
+              <input type="checkbox" id="stats-select-all" data-action="stats-select-all" aria-label="Выбрать все">
+            </th>
             <th>Дата</th><th>Ученик</th><th>Класс</th><th>Текст</th>
             <th>Сл/мин</th><th>Ошибки</th><th>Осознанность</th><th>Режим</th><th></th>
           </tr>
@@ -421,6 +424,56 @@
   </div><!-- /tab-statistics -->
 
 </div><!-- /app-container -->
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     INVERTED ACTION BAR (Массовые действия)
+════════════════════════════════════════════════════════════════════════ -->
+<div id="action-bar" class="action-bar hidden">
+  <div class="action-bar__content">
+    <span class="action-bar__text">Выбрано: <span id="selected-students-count">0</span></span>
+    <button class="btn btn--primary action-bar__btn" data-action="print-cards">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" style="margin-right: 6px;"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd"/></svg>
+      Распечатать карточки
+    </button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     PRINT CONTAINER (Скрыт в UI, виден при печати)
+════════════════════════════════════════════════════════════════════════ -->
+<div id="print-container" class="print-container"></div>
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     MODAL: STUDENT CARD (<dialog> with light-dismiss)
+════════════════════════════════════════════════════════════════════════ -->
+<dialog id="student-card-modal" class="student-card-modal">
+  <div class="modal__header">
+    <h2 class="modal__title" id="student-card-name">Имя Ученика</h2>
+    <button class="btn-icon btn--ghost" id="btn-close-student-card" data-action="close-student-card" title="Закрыть">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+    </button>
+  </div>
+  <div class="student-card-body">
+    <div class="student-card-speed">
+      <span id="student-card-wpm" class="speed-value">0</span> 
+      <span class="speed-label">сл/мин</span>
+      <span id="student-card-status" class="status-dot"></span>
+    </div>
+    
+    <div class="student-card-details">
+      <h3>Ошибки</h3>
+      <ul id="student-card-errors" class="error-list"></ul>
+      
+      <h3>Осознанность</h3>
+      <p id="student-card-comp" class="comp-value">0 из 0</p>
+    </div>
+  </div>
+  <div class="modal__footer">
+    <button class="btn btn--primary" id="btn-print-single-card" data-action="print-single-card">
+      Распечатать карточку
+    </button>
+  </div>
+</dialog>
 
 
 <!-- ════════════════════════════════════════════════════════════════════════

@@ -149,9 +149,9 @@ const Assessment = (() => {
 
   // ── CSV Export ────────────────────────────────────────────────────────────
 
-  /** Export all results to a semicolon-delimited CSV with BOM for Russian Excel. */
-  function exportCSV() {
-    const results = _load();
+  /** Export results to a semicolon-delimited CSV with BOM for Russian Excel. */
+  function exportCSV(dataToExport = null) {
+    const results = dataToExport || _load();
     if (!results.length) {
       alert('Нет данных для экспорта.');
       return;

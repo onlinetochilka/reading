@@ -20,6 +20,8 @@ const App = (() => {
     chartInstance: null,
     checkedStudents: new Set(),
     activeClassIdForStudent: null,
+    selectedResults: new Set(),
+    lastFilteredResults: [],
   };
 
   function freshSession(mode) {
@@ -1043,6 +1045,37 @@ const App = (() => {
     }
   }
 
+  function updateJournalActionBar() {
+    const actionBar = document.getElementById('action-bar');
+    const countSpan = document.getElementById('selected-students-count');
+    if (!actionBar || !countSpan) return;
+    
+    const count = state.selectedResults.size;
+    countSpan.textContent = count;
+    
+    if (count > 0) {
+      actionBar.classList.remove('hidden');
+    } else {
+      actionBar.classList.add('hidden');
+    }
+    
+    const selectAllCb = document.getElementById('stats-select-all');
+    if (selectAllCb) {
+      if (state.lastFilteredResults.length === 0) {
+        selectAllCb.checked = false;
+        selectAllCb.disabled = true;
+      } else {
+        selectAllCb.disabled = false;
+        selectAllCb.checked = state.lastFilteredResults.every(r => state.selectedResults.has(String(r.id)));
+      }
+    }
+    
+    const btnExport = document.getElementById('btn-export-csv');
+    if (btnExport) {
+      btnExport.disabled = state.lastFilteredResults.length === 0;
+    }
+  }
+
   function renderStats() {
     const emptyTitle = document.querySelector('#stats-empty .empty-title');
     const emptySub = document.querySelector('#stats-empty .empty-sub');
@@ -1065,20 +1098,55 @@ const App = (() => {
     if (classFilter)   results = results.filter(r => r.classId === classFilter);
     if (studentFilter) results = results.filter(r => r.studentId === studentFilter);
 
-    UI.renderStatistics(results);
+    state.lastFilteredResults = results;
+    UI.renderStatistics(results, state.selectedResults);
+    updateJournalActionBar();
+
     document.querySelectorAll('.btn-del-result').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         if (!confirm('Удалить запись?')) return;
         Assessment.deleteResult(btn.dataset.rid);
+        state.selectedResults.delete(String(btn.dataset.rid));
         renderStats();
         UI.showToast('Запись удалена');
       });
     });
     document.querySelectorAll('.btn-chart').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         openChart(btn.dataset.studentId, btn.dataset.studentName);
       });
     });
+
+    const tbody = document.querySelector('#stats-table tbody');
+    if (tbody) {
+      tbody.querySelectorAll('tr').forEach(tr => {
+        tr.addEventListener('click', (e) => {
+          if (e.target.closest('input[type="checkbox"]') || e.target.closest('button')) {
+            return;
+          }
+          const rid = tr.dataset.rid;
+          const result = Assessment.getResults().find(r => String(r.id) === rid);
+          if (result) {
+            UI.showStudentCardModal(result);
+          }
+        });
+        
+        const cb = tr.querySelector('.row-checkbox');
+        if (cb) {
+          cb.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (cb.checked) {
+              state.selectedResults.add(cb.value);
+            } else {
+              state.selectedResults.delete(cb.value);
+            }
+            updateJournalActionBar();
+          });
+        }
+      });
+    }
   }
 
   // ── CHART.JS ──────────────────────────────────────────────────────────────
@@ -1368,13 +1436,58 @@ const App = (() => {
     document.getElementById('btn-cancel-modal')?.addEventListener('click', UI.hideModal);
 
     // Statistics
-    document.getElementById('btn-export-csv')?.addEventListener('click', Assessment.exportCSV);
+    document.getElementById('btn-export-csv')?.addEventListener('click', () => {
+      Assessment.exportCSV(state.lastFilteredResults);
+    });
     document.getElementById('btn-go-check')?.addEventListener('click',   () => switchTab('check'));
     document.getElementById('stats-filter-class')?.addEventListener('change', () => {
       updateStatsFilters();
       renderStats();
     });
     document.getElementById('stats-filter-student')?.addEventListener('change', renderStats);
+
+    // Journal specific events
+    document.getElementById('stats-select-all')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isChecked = e.target.checked;
+      state.lastFilteredResults.forEach(r => {
+        if (isChecked) {
+          state.selectedResults.add(String(r.id));
+        } else {
+          state.selectedResults.delete(String(r.id));
+        }
+      });
+      renderStats();
+    });
+
+    document.querySelector('[data-action="print-cards"]')?.addEventListener('click', () => {
+      if (state.selectedResults.size === 0) return;
+      const resultsToPrint = Assessment.getResults().filter(r => state.selectedResults.has(String(r.id)));
+      UI.renderPrintJournalCards(resultsToPrint);
+      window.print();
+      setTimeout(() => {
+        const container = document.getElementById('print-container');
+        if (container) container.innerHTML = '';
+      }, 1000);
+    });
+
+    document.getElementById('btn-print-single-card')?.addEventListener('click', (e) => {
+      const rid = e.target.dataset.rid;
+      if (!rid) return;
+      const result = Assessment.getResults().find(r => String(r.id) === rid);
+      if (result) {
+        UI.renderPrintJournalCards([result]);
+        window.print();
+        setTimeout(() => {
+          const container = document.getElementById('print-container');
+          if (container) container.innerHTML = '';
+        }, 1000);
+      }
+    });
+
+    document.getElementById('btn-close-student-card')?.addEventListener('click', () => {
+      document.getElementById('student-card-modal')?.close();
+    });
   }
 
   // ── Init ──────────────────────────────────────────────────────────────────
