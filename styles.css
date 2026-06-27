@@ -992,9 +992,7 @@ body.print-landscape #print-content-wrapper {
     size: portrait;
     margin: 15mm;
   }
-  body.print-landscape @page {
-    size: landscape;
-  }
+
   .print-text-block {
     font-size: 14pt;
     line-height: 1.5;

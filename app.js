@@ -340,8 +340,12 @@ const App = (() => {
       container.appendChild(item);
     });
     
+    let landscapeStyle = null;
     if (layout === 'landscape') {
       document.body.classList.add('print-landscape');
+      landscapeStyle = document.createElement('style');
+      landscapeStyle.textContent = '@media print { @page { size: landscape !important; margin: 15mm; } }';
+      document.head.appendChild(landscapeStyle);
     } else {
       document.body.classList.remove('print-landscape');
     }
@@ -350,6 +354,7 @@ const App = (() => {
 
     const cleanupPrint = () => {
       document.body.classList.remove('print-landscape');
+      if (landscapeStyle) landscapeStyle.remove();
       wrapper.innerHTML = '';
       window.removeEventListener('afterprint', cleanupPrint);
     };
