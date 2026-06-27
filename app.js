@@ -1250,6 +1250,7 @@ const App = (() => {
     document.getElementById('btn-start-self')?.addEventListener('click',  startSelfCheck);
     document.getElementById('btn-stop-self')?.addEventListener('click', stopSelfCheck);
     document.getElementById('btn-reset-self')?.addEventListener('click',  resetCheck);
+    document.getElementById('btn-close-reading-self')?.addEventListener('click', resetCheck);
     document.getElementById('btn-proceed-eval')?.addEventListener('click', openSelfAnalysis);
 
     document.getElementById('text-class-filter-self')?.addEventListener('change', (e) => {
