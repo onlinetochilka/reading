@@ -791,14 +791,11 @@ const App = (() => {
     const textData = state.texts.find(t => t.id === textId);
     if (!textData) { UI.showToast('Текст не найден', 'error'); return; }
 
-    // `studentCompositeId` is something like "classId::studentId". Wait, what does `renderStudentSelect` output for `value`?
-    // Let's check `renderStudentSelect` in ui.js. It outputs `<option value="${s.id}">`.
-    // Wait, we need both classId and studentId. But `state.classes` has `cls.students.find(s => s.id === studentId)`.
-    // Student IDs are unique globally across classes.
+    const targetStudentId = studentCompositeId.includes('::') ? studentCompositeId.split('::')[1] : studentCompositeId;
     let foundStudent = null;
     let foundClass = null;
     for (const c of state.classes) {
-      const s = c.students.find(st => String(st.id) === String(studentCompositeId));
+      const s = c.students.find(st => String(st.id) === String(targetStudentId));
       if (s) { foundStudent = s; foundClass = c; break; }
     }
 

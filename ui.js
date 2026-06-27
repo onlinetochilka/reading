@@ -318,10 +318,7 @@ const UI = (() => {
     document.getElementById('modal-time-value').textContent  = Timer.formatTime(session.elapsed);
     show(wpmDisplay);
 
-    const summarySection = document.getElementById('modal-summary-section');
-    show(summarySection);
-    const summaryText = document.getElementById('modal-summary-text');
-    if (summaryText) summaryText.textContent = Assessment.generateSmartSummary(session);
+    // summarySection has been removed
 
     // Reset errors if they exist in UI
     ['distortion','accent','regression'].forEach(k => {
