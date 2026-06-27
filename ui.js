@@ -256,9 +256,9 @@ const UI = (() => {
         (r.errors?.regression || 0);
 
       const normResult = r.grade ? Assessment.compareWithNorm(r.wpm, r.grade, r.date) : 'unknown';
-      const statusClass = normResult === 'above' ? 'good' :
-                          normResult === 'normal' ? 'good' :
-                          normResult === 'below' ? 'critical' : '';
+      const statusClass = normResult === 'above' ? 'status-high' :
+                          normResult === 'normal' ? 'status-ok' :
+                          normResult === 'below' ? 'status-low' : '';
 
       const comp = r.comprehensionScore ? r.comprehensionScore :
                    Array.isArray(r.comprehension) && r.comprehension.length
@@ -272,22 +272,23 @@ const UI = (() => {
           <input type="checkbox" class="row-checkbox" value="${r.id}" ${selectedSet.has(String(r.id)) ? 'checked' : ''}>
         </td>
         <td>${date}</td>
-        <td>
-          ${escapeHtml(r.studentName || '—')}
-          ${r.studentId ? `<button class="btn-icon btn--ghost btn-chart" style="width:24px;height:24px;margin-left:4px;font-size:12px;" data-student-id="${r.studentId}" data-student-name="${escapeHtml(r.studentName || '')}" title="График динамики">📈</button>` : ''}
+        <td>${escapeHtml(r.studentName || '—')}</td>
+        <td style="text-align: center;">
+          ${r.studentId ? `<button class="btn-icon btn--ghost btn-chart" style="width:24px;height:24px;font-size:14px;color:var(--blue);" data-student-id="${r.studentId}" data-student-name="${escapeHtml(r.studentName || '')}" title="График динамики">📈</button>` : ''}
         </td>
         <td>${escapeHtml(r.className  || '—')}</td>
         <td>${escapeHtml(r.textTitle  || '—')}</td>
         <td class="wpm-cell">
-          <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
+          <div style="display:flex; align-items:center; gap:6px;">
             ${r.wpm || 0}
-            ${statusClass ? `<span class="status-dot ${statusClass}"></span>` : ''}
           </div>
+        </td>
+        <td style="text-align: center;">
+          ${statusClass ? `<span class="status-dot ${statusClass}"></span>` : '—'}
         </td>
         <td>${totalErrors > 0 ? totalErrors : '—'}</td>
         <td>${comp}</td>
-        <td>${modeLabel}</td>
-        <td>
+        <td style="text-align: center;">
           <button class="btn-icon btn--danger btn-del-result" data-rid="${r.id}" title="Удалить">
             <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zm-2 7a1 1 0 012 0v4a1 1 0 11-2 0V9zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V9a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
           </button>

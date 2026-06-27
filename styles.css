@@ -921,9 +921,9 @@ body.print-landscape #print-content-wrapper {
 
 .norm-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.78rem; color: rgba(27,58,107,0.52); margin-top: 12px; align-items: center; }
 .norm-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; }
-.norm-dot--above  { background: rgba(41,82,163,0.5); }
-.norm-dot--normal { background: rgba(26,107,58,0.5); }
-.norm-dot--below  { background: rgba(123,31,58,0.5); }
+.norm-dot--above  { background: #10b981; }
+.norm-dot--normal { background: #f59e0b; }
+.norm-dot--below  { background: #ef4444; }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 860px) {
@@ -1109,13 +1109,13 @@ body.print-landscape #print-content-wrapper {
 ════════════════════════════════════════════════════════════════════════ */
 .status-dot {
   display: inline-block;
-  width: 8px;
-  height: 8px;
+  width: 10px; height: 10px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
-.status-dot.good { background-color: var(--color-success); }
-.status-dot.warning { background-color: var(--color-warning); }
-.status-dot.critical { background-color: var(--color-danger); }
+.status-dot.status-high { background-color: #10b981; }
+.status-dot.status-ok { background-color: #f59e0b; }
+.status-dot.status-low { background-color: #ef4444; }
 
 .action-bar {
   position: fixed;
