@@ -654,12 +654,25 @@ const App = (() => {
 
     const idx = parseInt(word.dataset.index);
     state.session.wordCount = idx + 1;
-    state.session.wpm = Math.round((state.session.wordCount / state.session.elapsed) * 60);
+    state.session.wpm = Math.round((state.session.wordCount / Math.max(state.session.elapsed, 1)) * 60);
 
-    UI.highlightWordsUpTo(document.getElementById('text-display-teacher'), idx);
+    const container = document.getElementById(`text-display-${state.checkMode}`);
+    if (state.checkMode === 'self') {
+      UI.clearWordSelection(container);
+      word.classList.add('selected-word');
+      const evalBtnContainer = document.getElementById('eval-button-container');
+      if (evalBtnContainer) {
+        evalBtnContainer.style.display = 'block';
+        evalBtnContainer.classList.add('slide-up-anim');
+      }
+    } else {
+      UI.highlightWordsUpTo(container, idx);
+    }
 
     const wcd = document.getElementById('words-count-display');
     if (wcd) wcd.textContent = `${state.session.wordCount} слов → ${state.session.wpm} сл/мин`;
+    
+    updateCheckUI();
   }
 
   function openTeacherAnalysis() {
@@ -681,9 +694,7 @@ const App = (() => {
   // ── CHECK TAB — SELF MODE ─────────────────────────────────────────────────
 
   function startSelfCheck() {
-    const textId   = document.getElementById('text-select-self').value;
-    const duration = document.getElementById('duration-select').value;
-    const grade    = document.getElementById('grade-select-self')?.value;
+    const textId = document.getElementById('text-select-self').value;
     if (!textId) { UI.showToast('Выберите текст', 'error'); return; }
 
     const textData = state.texts.find(t => t.id === textId);
@@ -691,49 +702,59 @@ const App = (() => {
 
     Object.assign(state.session, {
       textId, textTitle: textData.title,
-      grade: grade ? parseInt(grade) : null,
     });
+    
+    ['distortion','accent','ending','regression'].forEach(k => {
+      state.session.errors[k] = 0;
+    });
+    document.querySelectorAll('input[name="reading-method"]').forEach(r => r.checked = false);
 
     state.checkState = 'reading';
-    const container  = document.getElementById('text-display-self');
+    const container = document.getElementById('text-display-self');
     UI.renderTextForReading(textData, container, { large: true });
-    container.classList.remove('text-blurred');
+    container.parentElement.classList.remove('is-evaluating');
+
+    // Hide eval button
+    const evalBtnContainer = document.getElementById('eval-button-container');
+    if (evalBtnContainer) {
+      evalBtnContainer.style.display = 'none';
+      evalBtnContainer.classList.remove('slide-up-anim');
+    }
+
     updateCheckUI();
 
-    const durSecs = duration === '60' ? 60 : null;
     const blurMsg = document.getElementById('blur-msg');
     if (blurMsg) blurMsg.textContent = '';
 
     Timer.start({
-      duration: durSecs,
-      onComplete: elapsed => {
-        state.session.elapsed = elapsed;
-        const blurMsg = document.getElementById('blur-msg');
-        if (blurMsg) { blurMsg.textContent = 'Время вышло! Выберите последнее прочитанное слово.'; blurMsg.classList.add('visible'); }
-        transitionSelfToCheckWord();
-      },
+      onTick: elapsed => {
+        const td = document.getElementById('timer-display-self');
+        if (td) td.textContent = Timer.formatTime(elapsed);
+      }
     });
   }
 
-  function finishSelfCheck() {
+  function stopSelfCheck() {
     state.session.elapsed = Timer.stop();
-    const blurMsg = document.getElementById('blur-msg');
-    if (blurMsg) { blurMsg.textContent = 'Выберите последнее прочитанное слово.'; blurMsg.classList.add('visible'); }
-    transitionSelfToCheckWord();
-  }
-
-  function transitionSelfToCheckWord() {
     state.checkState = 'word-select';
     updateCheckUI();
+
     const textContainer = document.getElementById('text-display-self');
     const textData      = state.texts.find(t => t.id === state.session.textId);
     UI.renderTextForReading(textData, textContainer, { clickable: true, large: true });
-    // Delegate word click locally or via the global listener if ID matches.
-    // We already have a global listener, let's just make sure it also covers self mode.
-    UI.showToast('Кликните на последнее слово', 'info');
+    textContainer.parentElement.classList.add('is-evaluating');
+
+    const blurMsg = document.getElementById('blur-msg');
+    if (blurMsg) { blurMsg.textContent = 'Кликните на последнее слово, которое прочёл ученик'; blurMsg.classList.add('visible'); }
   }
 
-  function openSelfAnalysis() { UI.showModal(state.session, state.texts); }
+  function openSelfAnalysis() { 
+    if (!state.session.wordCount) {
+      UI.showToast('Кликните на последнее слово перед оценкой', 'error');
+      return;
+    }
+    UI.showModal(state.session, state.texts); 
+  }
 
   // ── MODAL ─────────────────────────────────────────────────────────────────
 
@@ -749,38 +770,25 @@ const App = (() => {
 
   function saveResult() {
     const session = state.session;
-    if (session.mode === 'self' && !session.wpm) {
-      const inp   = document.getElementById('modal-words-input');
-      const words = inp ? parseInt(inp.value) : 0;
-      if (words > 0) {
-        session.wordCount = words;
-        session.wpm = Math.round((words / Math.max(session.elapsed, 1)) * 60);
+    const rmChecked = document.querySelector('input[name="reading-method"]:checked');
+    if (!rmChecked) {
+      const rmSection = document.getElementById('reading-method-container');
+      if (rmSection) {
+        rmSection.classList.remove('has-error');
+        void rmSection.offsetWidth; // trigger reflow
+        rmSection.classList.add('has-error');
       }
-    } else if (session.mode === 'teacher') {
-      const rmChecked = document.querySelector('input[name="reading-method"]:checked');
-      if (!rmChecked) {
-        const rmSection = document.querySelector('.reading-method-section');
-        if (rmSection) {
-          rmSection.classList.remove('has-error');
-          void rmSection.offsetWidth; // trigger reflow
-          rmSection.classList.add('has-error');
-        }
-        UI.showToast('Пожалуйста, выберите способ чтения', 'error');
-        return;
-      }
-      session.readingMethod = rmChecked.value;
-
-      // Collect expressiveness from the modal checkboxes
-      // Collect expressiveness from the modal radio and checkbox
-      const isMonotone = document.querySelector('input[name="exp-monotone-radio"]:checked')?.value === 'true';
-      session.expressiveness = {
-        ignoreSigns:  document.getElementById('exp-ignore-signs')?.checked  ?? false,
-        monotone:     isMonotone,
-      };
-
-      // Collect orthographic reading
-      session.orthographicReading = document.getElementById('rm-orthographic')?.checked ?? false;
+      UI.showToast('Пожалуйста, выберите способ чтения', 'error');
+      return;
     }
+    session.readingMethod = rmChecked.value;
+
+    const isMonotone = document.querySelector('input[name="exp-monotone-radio"]:checked')?.value === 'true';
+    session.expressiveness = {
+      ignoreSigns:  document.getElementById('exp-ignore-signs')?.checked  ?? false,
+      monotone:     isMonotone,
+    };
+    session.orthographicReading = document.getElementById('rm-orthographic')?.checked ?? false;
 
     if (session.comprehension && session.comprehension.length > 0) {
       const correct = session.comprehension.filter(c => c && c.correct).length;
@@ -1124,21 +1132,40 @@ const App = (() => {
 
     // Error counter buttons
     ['distortion','accent','ending','regression'].forEach(key => {
+      // Main screen (Teacher)
       const btn = document.getElementById(`btn-${key}`);
-      if (!btn) return;
-      btn.addEventListener('click', () => {
-        if (state.checkState !== 'reading') return;
-        state.session.errors[key]++;
-        const el = document.getElementById(`counter-${key}`);
-        if (el) el.textContent = state.session.errors[key];
-      });
-      btn.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        if (state.checkState !== 'reading') return;
-        if (state.session.errors[key] > 0) state.session.errors[key]--;
-        const el = document.getElementById(`counter-${key}`);
-        if (el) el.textContent = state.session.errors[key];
-      });
+      if (btn) {
+        btn.addEventListener('click', () => {
+          if (state.checkState !== 'reading') return;
+          state.session.errors[key]++;
+          const el = document.getElementById(`counter-${key}`);
+          if (el) el.textContent = state.session.errors[key];
+        });
+        btn.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          if (state.checkState !== 'reading') return;
+          if (state.session.errors[key] > 0) state.session.errors[key]--;
+          const el = document.getElementById(`counter-${key}`);
+          if (el) el.textContent = state.session.errors[key];
+        });
+      }
+      
+      // Modal (Self)
+      const btnModal = document.getElementById(`btn-${key}-modal`);
+      if (btnModal) {
+        btnModal.addEventListener('click', (e) => {
+          e.preventDefault();
+          state.session.errors[key]++;
+          const el = document.getElementById(`counter-${key}-modal`);
+          if (el) el.textContent = state.session.errors[key];
+        });
+        btnModal.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          if (state.session.errors[key] > 0) state.session.errors[key]--;
+          const el = document.getElementById(`counter-${key}-modal`);
+          if (el) el.textContent = state.session.errors[key];
+        });
+      }
     });
 
     // Text class filter in check tab
@@ -1158,9 +1185,19 @@ const App = (() => {
 
     // Self check flow
     document.getElementById('btn-start-self')?.addEventListener('click',  startSelfCheck);
-    document.getElementById('btn-finish-self')?.addEventListener('click', finishSelfCheck);
+    document.getElementById('btn-stop-self')?.addEventListener('click', stopSelfCheck);
     document.getElementById('btn-reset-self')?.addEventListener('click',  resetCheck);
-    document.getElementById('duration-select')?.addEventListener('change', updateCheckUI);
+    document.getElementById('btn-proceed-eval')?.addEventListener('click', openSelfAnalysis);
+
+    document.getElementById('text-class-filter-self')?.addEventListener('change', (e) => {
+      const val = e.target.value;
+      const filtered = val ? state.texts.filter(t => t.grade === parseInt(val)) : state.texts;
+      const selectEl = document.getElementById('text-select-self');
+      UI.renderTextSelect(filtered, selectEl);
+      if (filtered.length === 0) {
+        selectEl.innerHTML = '<option value="" disabled selected>Тексты не найдены</option>';
+      }
+    });
 
     // Modal
     document.getElementById('modal-overlay')?.addEventListener('click', e => {
@@ -1209,6 +1246,24 @@ const App = (() => {
     await loadTexts();
     updateStatsFilters();
     bindEvents();
+
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        const activeTag = document.activeElement ? document.activeElement.tagName : '';
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) return;
+        
+        e.preventDefault();
+        const startBtn = document.getElementById(`btn-start-${state.checkMode}`);
+        const stopBtn = document.getElementById(`btn-stop-${state.checkMode}`);
+
+        if (state.checkState === 'setup' && startBtn && !startBtn.disabled) {
+          startBtn.click();
+        } else if (state.checkState === 'reading' && stopBtn && !stopBtn.disabled) {
+          stopBtn.click();
+        }
+      }
+    });
+
     switchTab('students');
   }
 

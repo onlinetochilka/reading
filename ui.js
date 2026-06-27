@@ -291,37 +291,23 @@ const UI = (() => {
     document.getElementById('modal-text-title').textContent = textData?.title ?? (session.textId || '—');
     document.getElementById('modal-elapsed').textContent    = Timer.formatTime(session.elapsed);
 
-    // WPM block — teacher: pre-calculated; self: input
+    // WPM block
     const wpmDisplay = document.getElementById('modal-wpm-display');
-    const wpmInput   = document.getElementById('modal-wpm-input-section');
+    document.getElementById('modal-wpm-value').textContent   = session.wpm || 0;
+    document.getElementById('modal-words-value').textContent = session.wordCount || 0;
+    document.getElementById('modal-time-value').textContent  = Timer.formatTime(session.elapsed);
+    show(wpmDisplay);
 
-    if (session.mode === 'teacher') {
-      document.getElementById('modal-wpm-value').textContent   = session.wpm || 0;
-      document.getElementById('modal-words-value').textContent = session.wordCount || 0;
-      document.getElementById('modal-time-value').textContent  = Timer.formatTime(session.elapsed);
-      show(wpmDisplay);
-      hide(wpmInput);
-    } else {
-      hide(wpmDisplay);
-      show(wpmInput);
-      const inp = document.getElementById('modal-words-input');
-      if (inp) inp.value = '';
-    }
-
-    // Teacher-only expressiveness section
-    const teacherSection = document.getElementById('modal-teacher-section');
     const summarySection = document.getElementById('modal-summary-section');
-    if (session.mode === 'teacher') {
-      show(teacherSection);
-      show(summarySection);
-      const summaryText = document.getElementById('modal-summary-text');
-      if (summaryText) summaryText.textContent = Assessment.generateSmartSummary(session);
+    show(summarySection);
+    const summaryText = document.getElementById('modal-summary-text');
+    if (summaryText) summaryText.textContent = Assessment.generateSmartSummary(session);
 
-      // We rely on checkboxes now being physically in the modal, no dynamic list.
-    } else {
-      hide(teacherSection);
-      hide(summarySection);
-    }
+    // Reset errors if they exist in UI
+    ['distortion','accent','regression'].forEach(k => {
+      const el = document.getElementById(`counter-${k}-modal`);
+      if (el) el.textContent = session.errors?.[k] || 0;
+    });
 
     // Comprehension questions
     const qContainer = document.getElementById('modal-questions');

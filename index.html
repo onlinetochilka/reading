@@ -7,6 +7,16 @@
   <!-- Yandex Tag Manager Stub -->
   <script>
     window.dataLayer = window.dataLayer || [];
+    // UTM Parser
+    (function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const utms = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+      utms.forEach(utm => {
+        if (urlParams.has(utm)) {
+          sessionStorage.setItem(utm, urlParams.get(utm));
+        }
+      });
+    })();
   </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="https://raw.githubusercontent.com/onlinetochilka/theme/main/tochilka-theme.css" />
@@ -253,19 +263,19 @@
 
           <!-- Error counters (3 types as tap-buttons) -->
           <div class="error-counters" style="display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 0;">
-            <button class="error-counter-btn error-btn" id="btn-distortion" data-action="error-distortion" disabled title="ЛКМ = +1, ПКМ = -1">
+            <button class="error-counter-btn error-btn" id="btn-distortion" data-action="error-distortion" disabled>
               <div class="error-btn-content" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
                 <span class="error-name">Искажение</span>
                 <span class="counter-val" id="counter-distortion" style="font-size: 1.2rem; font-weight: 700;">0</span>
               </div>
             </button>
-            <button class="error-counter-btn error-btn" id="btn-accent" data-action="error-accent" disabled title="ЛКМ = +1, ПКМ = -1">
+            <button class="error-counter-btn error-btn" id="btn-accent" data-action="error-accent" disabled>
               <div class="error-btn-content" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
                 <span class="error-name">Ударение</span>
                 <span class="counter-val" id="counter-accent" style="font-size: 1.2rem; font-weight: 700;">0</span>
               </div>
             </button>
-            <button class="error-counter-btn error-btn" id="btn-regression" data-action="error-regression" disabled title="ЛКМ = +1, ПКМ = -1">
+            <button class="error-counter-btn error-btn" id="btn-regression" data-action="error-regression" disabled>
               <div class="error-btn-content" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
                 <span class="error-name">Повтор</span>
                 <span class="counter-val" id="counter-regression" style="font-size: 1.2rem; font-weight: 700;">0</span>
@@ -294,59 +304,57 @@
     ═══════════════════════════════════════════════════════════════════ -->
     <div id="check-self" style="display:none">
 
-      <div id="check-setup-self">
-        <div class="card">
-          <h2 style="margin-bottom:18px">Самопроверка</h2>
-          <div class="setup-panel">
-            <div class="row">
-              <div class="form-group">
-                <label for="text-select-self">Текст</label>
-                <select id="text-select-self" data-action="select-text-self">
-                  <option value="">— Выберите текст —</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="duration-select">Режим времени</label>
-                <select id="duration-select" data-action="select-duration-self">
-                  <option value="60">1 минута</option>
-                  <option value="unlimited">Без лимита</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="grade-select-self">Мой класс <span class="muted">(необязательно)</span></label>
-              <select id="grade-select-self" data-action="select-grade-self">
-                <option value="">— не указан —</option>
+      <!-- Compact setup bar -->
+      <div class="card check-setup-bar" id="check-setup-self">
+        <div class="check-setup-bar__fields">
+          <div class="form-group form-group--inline">
+            <div style="display:flex; align-items:center;">
+              <label for="text-class-filter-self" style="margin-right: 8px;">Класс</label>
+              <select id="text-class-filter-self" data-action="filter-text-class-self" style="width: auto; margin-right: 12px;">
+                <option value="">Все</option>
                 <option value="1">1 класс</option>
                 <option value="2">2 класс</option>
                 <option value="3">3 класс</option>
                 <option value="4">4 класс</option>
-                <option value="5">5 класс</option>
+              </select>
+              <label for="text-select-self" style="margin-right: 8px;">Текст</label>
+              <select id="text-select-self" data-action="select-text-self" style="flex:1;">
+                <option value="">— Выберите текст —</option>
               </select>
             </div>
           </div>
-          <button class="btn btn--start" id="btn-start-self" data-action="start-self">
-            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
-            Начать чтение
-          </button>
         </div>
       </div>
 
+      <!-- Reading area -->
       <div id="check-reading-self" style="display:none">
-        <div class="card" style="margin-bottom:12px">
-          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center">
-            <button class="btn btn--primary" id="btn-finish-self" data-action="finish-self" style="display:none">
-              Я закончил читать
-            </button>
-            <button class="btn btn--ghost" id="btn-reset-self" data-action="reset-self">Сбросить таймер</button>
+        
+        <div class="card check-col--controls" style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+          <div class="timer-block" style="margin-bottom:0;">
+            <div id="timer-display-self">0:00</div>
           </div>
-          <p class="muted" style="margin-top:10px; font-size:0.8rem">
-            Читайте в своём темпе. Таймер работает в фоне.
-          </p>
+          <div class="control-btn-row">
+            <button class="btn btn--start control-btn" id="btn-start-self" data-action="start-self-check">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
+              Старт
+            </button>
+            <button class="btn btn--stop control-btn" id="btn-stop-self" data-action="stop-self-check" disabled>
+              <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd"/></svg>
+              Стоп
+            </button>
+            <button class="btn btn--ghost control-btn" id="btn-reset-self" data-action="reset-self-check">Сбросить</button>
+          </div>
         </div>
-        <div class="card">
+
+        <div class="card" style="position:relative;">
           <div id="text-display-self" class="text-container"></div>
-          <div id="blur-msg" class="blur-overlay-msg"></div>
+          <div id="blur-msg" class="blur-overlay-msg">Нажмите «Старт» для начала чтения</div>
+          
+          <div id="eval-button-container" style="display:none; text-align:center; margin-top:16px;">
+            <button class="btn btn--primary" id="btn-proceed-eval" data-action="proceed-to-evaluation">
+              Перейти к оценке
+            </button>
+          </div>
         </div>
       </div>
 
@@ -486,49 +494,76 @@
       </button>
     </div>
 
-    <!-- Teacher-only expressiveness and reading method -->
-    <div id="modal-teacher-section" class="modal-section" style="margin-top: 0; padding-top: 0; border-top: none;">
-      <div class="reading-method-section" style="margin-bottom: 16px;">
-        <h4>Способ чтения</h4>
-        <div class="segmented-control" style="margin-top: 8px;">
-          <input type="radio" name="reading-method" id="rm-letters" value="Буквенный" />
-          <label for="rm-letters">Буквенный</label>
-          <input type="radio" name="reading-method" id="rm-syllables" value="Слоговой" />
-          <label for="rm-syllables">Слоговой</label>
-          <input type="radio" name="reading-method" id="rm-words-syllables" value="Слоги + слова" />
-          <label for="rm-words-syllables">Слоги + слова</label>
-          <input type="radio" name="reading-method" id="rm-words" value="Целыми словами" />
-          <label for="rm-words">Целыми словами</label>
+    <div class="modal__grid">
+      <!-- Col 1: Technique -->
+      <div class="modal__col" id="modal-col-technique">
+        <h4 style="margin-bottom:12px;">Ошибки при чтении</h4>
+        <div class="error-counters" style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+          <button class="error-counter-btn error-btn" id="btn-distortion-modal" data-action="error-distortion-modal">
+            <div class="error-btn-content" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
+              <span class="error-name">Искажение</span>
+              <span class="counter-val" id="counter-distortion-modal" style="font-size: 1.2rem; font-weight: 700;">0</span>
+            </div>
+          </button>
+          <button class="error-counter-btn error-btn" id="btn-accent-modal" data-action="error-accent-modal">
+            <div class="error-btn-content" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
+              <span class="error-name">Ударение</span>
+              <span class="counter-val" id="counter-accent-modal" style="font-size: 1.2rem; font-weight: 700;">0</span>
+            </div>
+          </button>
+          <button class="error-counter-btn error-btn" id="btn-regression-modal" data-action="error-regression-modal">
+            <div class="error-btn-content" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%;">
+              <span class="error-name">Повтор</span>
+              <span class="counter-val" id="counter-regression-modal" style="font-size: 1.2rem; font-weight: 700;">0</span>
+            </div>
+          </button>
         </div>
-        <label class="checkbox-row" style="margin-top: 12px;">
-          <input type="checkbox" id="rm-orthographic" />
-          <span>Орфографическое чтение</span>
-        </label>
+        <p class="error-counters-hint muted" style="font-size: 0.8rem; text-align: center; margin-top: 8px;">Клик: +1 ошибка • Правый клик: -1</p>
+
+        <div class="reading-method-section" id="reading-method-container" style="margin-top: 24px;">
+          <h4>Способ чтения</h4>
+          <div class="segmented-control" style="margin-top: 8px;">
+            <input type="radio" name="reading-method" id="rm-letters" value="Буквенный" />
+            <label for="rm-letters">Буквенный</label>
+            <input type="radio" name="reading-method" id="rm-syllables" value="Слоговой" />
+            <label for="rm-syllables">Слоговой</label>
+            <input type="radio" name="reading-method" id="rm-words-syllables" value="Слоги + слова" />
+            <label for="rm-words-syllables">Слоги + слова</label>
+            <input type="radio" name="reading-method" id="rm-words" value="Целыми словами" />
+            <label for="rm-words">Целыми словами</label>
+          </div>
+          <label class="checkbox-row" style="margin-top: 12px;">
+            <input type="checkbox" id="rm-orthographic" />
+            <span>Орфографическое чтение</span>
+          </label>
+        </div>
       </div>
 
-      <h4>Выразительность</h4>
-      <div class="expressiveness-section" style="margin-top: 8px; display: flex; flex-direction: column; gap: 12px;">
-        <div class="segmented-control">
-          <input type="radio" name="exp-monotone-radio" id="exp-expressive" value="false" checked />
-          <label for="exp-expressive">Читает с выражением</label>
-          <input type="radio" name="exp-monotone-radio" id="exp-monotone" value="true" />
-          <label for="exp-monotone">Монотонно</label>
+      <!-- Col 2: Comprehension -->
+      <div class="modal__col" id="modal-col-comprehension">
+        <h4>Выразительность</h4>
+        <div class="expressiveness-section" style="margin-top: 8px; display: flex; flex-direction: column; gap: 12px;">
+          <div class="segmented-control">
+            <input type="radio" name="exp-monotone-radio" id="exp-expressive" value="false" checked />
+            <label for="exp-expressive">Читает с выражением</label>
+            <input type="radio" name="exp-monotone-radio" id="exp-monotone" value="true" />
+            <label for="exp-monotone">Монотонно</label>
+          </div>
+          <label class="checkbox-row" style="margin-top: 4px;">
+            <input type="checkbox" id="exp-ignore-signs" />
+            <span>Игнорирует знаки препинания</span>
+          </label>
         </div>
-        <label class="checkbox-row" style="margin-top: 4px;">
-          <input type="checkbox" id="exp-ignore-signs" />
-          <span>Игнорирует знаки препинания</span>
-        </label>
-      </div>
-    </div>
 
-    <!-- Comprehension -->
-    <div class="modal-section">
-      <h4>Осознанность прочитанного</h4>
-      <div id="modal-questions"></div>
+        <div style="margin-top: 24px;">
+          <h4>Осознанность прочитанного</h4>
+          <div id="modal-questions" style="margin-top:8px; display:flex; flex-direction:column; gap:12px;"></div>
+        </div>
+      </div>
     </div>
 
     <!-- WPM — teacher mode -->
-    <div id="modal-wpm-display" class="modal-section">
+    <div id="modal-wpm-display" class="modal-section" style="margin-top: 16px; border-top: 1px solid rgba(27,58,107,0.1); padding-top:16px;">
       <div class="wpm-summary">
         <span class="wpm-big" id="modal-wpm-value">0</span>
         <span class="wpm-label">слов / мин</span>
@@ -536,15 +571,6 @@
       <p class="wpm-detail">
         <span id="modal-words-value">0</span> слов за <span id="modal-time-value">0:00</span>
       </p>
-    </div>
-
-    <!-- WPM — self mode input -->
-    <div id="modal-wpm-input-section" class="modal-section" style="display:none">
-      <div class="form-group">
-        <label for="modal-words-input">Сколько слов вы прочитали?</label>
-        <input type="number" id="modal-words-input" placeholder="Введите количество слов" min="0" max="9999" />
-        <p class="muted" style="margin-top:4px">Слов/мин рассчитается автоматически при сохранении.</p>
-      </div>
     </div>
 
     <!-- Smart Summary -->
