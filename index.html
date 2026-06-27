@@ -131,7 +131,7 @@
     <!-- Contextual Action Bar -->
     <div id="context-action-bar">
       <div style="display:flex; align-items:center; gap:16px;">
-        <span id="cab-selected-count" style="font-weight:600;">Выбрано: 0</span>
+        <span id="cab-selected-count" style="font-weight:600;">Выбрано: <span id="selection-counter" style="display:inline-block">0</span></span>
         <button id="btn-clear-selection" data-action="clear-selection" style="background:transparent; border:none; cursor:pointer; color:inherit; display:flex; align-items:center; justify-content:center; padding:4px; border-radius:50%;">
           <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
         </button>
@@ -150,7 +150,7 @@
             Альбомная
           </label>
         </div>
-        <button class="btn btn--glass" id="btn-cab-print" data-action="print-selected">Распечатать</button>
+        <button class="btn" id="btn-cab-print" data-action="print-selected" style="background: var(--burgundy); color: #fff; border-color: var(--burgundy);">Распечатать</button>
       </div>
     </div>
   </div>

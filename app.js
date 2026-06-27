@@ -284,11 +284,13 @@ const App = (() => {
 
   function updateContextActionBar() {
     const bar = document.getElementById('context-action-bar');
-    const countSpan = document.getElementById('cab-selected-count');
+    const countSpan = document.getElementById('selection-counter');
     if (!bar || !countSpan) return;
 
     if (state.selectedTextIds.length > 0) {
-      countSpan.textContent = `Выбрано: ${state.selectedTextIds.length}`;
+      countSpan.textContent = state.selectedTextIds.length;
+      countSpan.classList.add('pulse-anim');
+      setTimeout(() => countSpan.classList.remove('pulse-anim'), 250);
       bar.classList.add('visible');
     } else {
       bar.classList.remove('visible');
@@ -311,23 +313,27 @@ const App = (() => {
     const layout = layoutRadio ? layoutRadio.value : 'portrait';
     
     const container = document.createElement('div');
-    container.className = 'print-container' + (layout === 'landscape' ? ' landscape' : '');
+    container.className = 'print-container';
+    if (layout === 'landscape') {
+      container.style.columnCount = '2';
+      container.style.columnGap = '40px';
+    }
 
     const textsToPrint = state.texts.filter(t => state.selectedTextIds.includes(String(t.id)));
       
     textsToPrint.forEach(t => {
       const item = document.createElement('div');
-      item.className = 'print-text-item';
+      item.className = 'print-text-block';
+      if (t.grade) {
+        item.dataset.grade = t.grade;
+      }
       
       const title = document.createElement('h2');
-      title.className = 'print-title';
       title.textContent = t.title;
       item.appendChild(title);
 
       const content = document.createElement('div');
       content.style.whiteSpace = 'pre-wrap';
-      content.style.fontSize = '12pt';
-      content.style.lineHeight = '1.6';
       content.textContent = t.content;
       item.appendChild(content);
 
@@ -341,6 +347,16 @@ const App = (() => {
     }
 
     wrapper.appendChild(container);
+
+    const cleanupPrint = () => {
+      document.body.classList.remove('print-landscape');
+      wrapper.innerHTML = '';
+      window.removeEventListener('afterprint', cleanupPrint);
+    };
+    window.addEventListener('afterprint', cleanupPrint);
+    // Fallback cleanup
+    setTimeout(cleanupPrint, 300000); 
+
     window.print();
   }
 

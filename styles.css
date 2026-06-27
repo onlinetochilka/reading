@@ -929,11 +929,11 @@ body.print-landscape #print-content-wrapper {
   left: 50%;
   transform: translate(-50%, 100px);
   opacity: 0;
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 8px 32px rgba(27, 58, 107, 0.08), inset 0 0 0 1px rgba(255,255,255,0.4);
+  box-shadow: 0 8px 32px rgba(27, 58, 107, 0.08), inset 0 0 0 1px rgba(255,255,255,0.85);
   border-radius: 100px;
   padding: 10px 24px;
   display: flex;
@@ -963,4 +963,46 @@ body.print-landscape #print-content-wrapper {
   background: rgba(255, 255, 255, 0.8);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(27, 58, 107, 0.08);
+}
+
+/* ANIMATION */
+@keyframes soft-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); color: var(--burgundy); }
+  100% { transform: scale(1); }
+}
+.pulse-anim { animation: soft-pulse 0.25s cubic-bezier(0.25, 1, 0.5, 1); }
+
+/* PRINT STYLES */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-container, .print-container * {
+    visibility: visible;
+    color: #000000 !important;
+  }
+  .print-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  @page {
+    size: portrait;
+    margin: 15mm;
+  }
+  body.print-landscape @page {
+    size: landscape;
+  }
+  .print-text-block {
+    font-size: 14pt;
+    line-height: 1.5;
+    font-family: sans-serif;
+    page-break-inside: avoid;
+  }
+  .print-text-block[data-grade="1"] {
+    font-size: 18pt;
+    line-height: 1.6;
+  }
 }
