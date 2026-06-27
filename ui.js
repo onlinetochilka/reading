@@ -506,17 +506,20 @@ const UI = (() => {
 
   // ── Student Card Dialog (Journal) ─────────────────────────────────────────
 
+  let modalChartInstance = null;
+
   function showStudentCardModal(result) {
     const dialog = document.getElementById('student-card-modal');
     if (!dialog) return;
     
-    document.getElementById('student-card-name').textContent = result.studentName || '—';
+    document.getElementById('student-card-name').textContent = result.studentName || 'Неизвестный ученик';
     document.getElementById('student-card-wpm').textContent = result.wpm || 0;
     
-    const normResult = result.grade ? Assessment.compareWithNorm(result.wpm, result.grade, result.date) : 'unknown';
-    const statusClass = normResult === 'above' ? 'good' :
-                        normResult === 'normal' ? 'good' :
-                        normResult === 'below' ? 'critical' : '';
+    let statusClass = '';
+    const norm = Assessment.getNorm(result.grade, Assessment.getCurrentHalf());
+    if (norm) {
+      statusClass = (result.wpm >= norm.min) ? 'status-ok' : 'status-low';
+    }
     const statusDot = document.getElementById('student-card-status');
     statusDot.className = 'status-dot'; // reset
     if (statusClass) statusDot.classList.add(statusClass);
@@ -548,6 +551,48 @@ const UI = (() => {
     // Store result id on the print button for single card printing
     document.getElementById('btn-print-single-card').dataset.rid = result.id;
 
+    // Render Progress Chart
+    const chartContainer = document.querySelector('.student-card-chart-container');
+    const ctx = document.getElementById('student-card-chart');
+    if (modalChartInstance) {
+      modalChartInstance.destroy();
+    }
+    
+    const allResults = Assessment.getResults()
+      .filter(r => r.studentId === result.studentId)
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+      
+    if (allResults.length >= 2 && ctx) {
+      chartContainer.style.display = 'block';
+      const labels = allResults.map(r => new Date(r.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' }));
+      const wpmData = allResults.map(r => r.wpm || 0);
+      
+      modalChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Сл/мин',
+            data: wpmData,
+            borderColor: '#2952A3',
+            backgroundColor: 'rgba(41, 82, 163, 0.1)',
+            tension: 0.3,
+            fill: true,
+            pointRadius: 4,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    } else if (chartContainer) {
+      chartContainer.style.display = 'none';
+    }
+
     dialog.showModal();
 
     // Light-dismiss logic
@@ -568,7 +613,7 @@ const UI = (() => {
     container.innerHTML = '<div class="print-cards-grid"></div>';
     const grid = container.querySelector('.print-cards-grid');
     
-    results.forEach(r => {
+    results.forEach((r, index) => {
       const card = document.createElement('div');
       card.className = 'print-card';
       
@@ -585,19 +630,73 @@ const UI = (() => {
 
       const dateStr = new Date(r.date).toLocaleDateString('ru-RU');
 
+      const allResults = Assessment.getResults()
+        .filter(hist => hist.studentId === r.studentId)
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      const hasHistory = allResults.length >= 2;
+      const chartId = `print-chart-${index}`;
+
       card.innerHTML = `
-        <div class="print-card-name">${escapeHtml(r.studentName || '—')}</div>
-        <div style="font-size:10pt; color:#666; margin-bottom:15px;">Дата: ${dateStr}</div>
-        <div class="print-card-speed">
-          ${r.wpm || 0}
-          <span class="print-card-speed-label">сл/мин</span>
+        <div class="print-card-header">
+          <h2 class="print-card-name">${escapeHtml(r.studentName || '—')}</h2>
+          <span class="print-card-date">${dateStr}</span>
         </div>
-        <div class="print-card-section">Ошибки</div>
-        <p class="print-card-text">${errorsStr}</p>
-        <div class="print-card-section">Осознанность</div>
-        <p class="print-card-text">${comp}</p>
+        <div class="print-card-body">
+          <div class="print-card-speed-box">
+            <div class="print-card-speed">${r.wpm || 0}</div>
+            <div class="print-card-speed-label">сл/мин</div>
+          </div>
+          <div class="print-card-stats">
+            <div>
+              <div class="print-card-section">Ошибки</div>
+              <div class="print-card-text">${errorsStr}</div>
+            </div>
+            <div>
+              <div class="print-card-section">Осознанность</div>
+              <div class="print-card-text">${comp}</div>
+            </div>
+          </div>
+        </div>
+        ${hasHistory ? `<div class="print-card-chart"><canvas id="${chartId}"></canvas></div>` : ''}
       `;
       grid.appendChild(card);
+      
+      if (hasHistory) {
+        setTimeout(() => {
+          const ctx = document.getElementById(chartId);
+          if (ctx) {
+            const labels = allResults.map(hist => new Date(hist.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' }));
+            const wpmData = allResults.map(hist => hist.wpm || 0);
+            
+            new Chart(ctx, {
+              type: 'line',
+              data: {
+                labels,
+                datasets: [{
+                  label: 'Сл/мин',
+                  data: wpmData,
+                  borderColor: '#1e40af',
+                  backgroundColor: 'transparent',
+                  tension: 0.3,
+                  pointRadius: 3,
+                  borderWidth: 2
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                  y: { beginAtZero: true, ticks: { font: { size: 10 } } },
+                  x: { ticks: { font: { size: 10 } } }
+                }
+              }
+            });
+          }
+        }, 0);
+      }
     });
   }
 

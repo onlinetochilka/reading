@@ -1157,12 +1157,10 @@ body.print-landscape #print-content-wrapper {
 /* Student Card Modal */
 .student-card-modal {
   border: none;
-  border-radius: var(--radius-lg);
+  background: transparent;
   padding: 0;
-  width: 90%;
-  max-width: 400px;
-  background: var(--surface);
-  box-shadow: var(--shadow-xl);
+  max-width: 100%;
+  width: auto;
 }
 .student-card-modal::backdrop {
   background-color: rgba(15, 23, 42, 0.6);
@@ -1216,12 +1214,17 @@ body.print-landscape #print-content-wrapper {
      PRINT STYLES
 ════════════════════════════════════════════════════════════════════════ */
 @media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
   body * {
     visibility: hidden;
   }
   .print-container, .print-container * {
     visibility: visible;
-    color: #000000 !important;
+    color: #1e293b !important;
   }
   .print-container {
     position: absolute;
@@ -1230,50 +1233,104 @@ body.print-landscape #print-content-wrapper {
     width: 100%;
   }
 
-  .print-text-block {
-    font-size: 14pt;
-    line-height: 1.5;
-    font-family: sans-serif;
-    page-break-inside: avoid;
-  }
-  .print-text-block[data-grade="1"] {
-    font-size: 18pt;
-    line-height: 1.6;
-  }
-
   /* Journal Cards Print Grid */
   .print-cards-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20mm;
+    gap: 10mm;
     width: 100%;
   }
   .print-card {
     break-inside: avoid;
-    border: 2px solid #000;
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
+    page-break-inside: avoid;
+    border: 2px solid #e2e8f0;
+    padding: 30px;
+    border-radius: 16px;
+    background-color: #ffffff !important;
+    display: flex;
+    flex-direction: column;
+    min-height: 150mm;
   }
+  
+  .print-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 15px;
+  }
+  
   .print-card-name {
-    font-size: 18pt;
-    font-weight: bold;
-    margin-bottom: 10px;
+    font-size: 24pt;
+    font-weight: 800;
+    color: #0f172a !important;
+    margin: 0;
   }
+  
+  .print-card-date {
+    font-size: 14pt;
+    color: #64748b !important;
+  }
+  
+  .print-card-body {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .print-card-speed-box {
+    flex: 0 0 140px;
+    background: #f8fafc !important;
+    border-radius: 12px;
+    padding: 20px 10px;
+    text-align: center;
+    border: 1px solid #e2e8f0;
+  }
+  
   .print-card-speed {
-    font-size: 32pt;
-    font-weight: bold;
-    margin-bottom: 15px;
-  }
-  .print-card-speed-label { font-size: 14pt; font-weight: normal; }
-  .print-card-section {
-    font-size: 12pt;
-    font-weight: bold;
-    margin-top: 15px;
+    font-size: 42pt;
+    font-weight: 800;
+    color: #1e40af !important;
+    line-height: 1;
     margin-bottom: 5px;
   }
+  .print-card-speed-label { 
+    font-size: 14pt; 
+    font-weight: 600; 
+    color: #64748b !important;
+  }
+  
+  .print-card-stats {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 15px;
+  }
+  
+  .print-card-section {
+    font-size: 11pt;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    color: #94a3b8 !important;
+    margin-bottom: 4px;
+  }
+  
   .print-card-text {
-    font-size: 12pt;
+    font-size: 15pt;
+    font-weight: 600;
+    color: #334155 !important;
     margin: 0;
+  }
+  
+  .print-card-chart {
+    margin-top: auto;
+    height: 140px;
+    width: 100%;
+    position: relative;
+    border-top: 1px dashed #cbd5e1;
+    padding-top: 20px;
   }
 }
