@@ -1,5 +1,22 @@
 'use strict';
 
+// ── Firebase Configuration ────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+// Initialize Firebase
+if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const db = typeof firebase !== 'undefined' ? firebase.firestore() : null;
+
+// Temporary Auto-Seeding Logic removed
+
 /**
  * App — main application orchestrator.
  * Depends on: Timer, Assessment, UI (loaded before this file).
@@ -1233,19 +1250,20 @@ const App = (() => {
 
   async function loadTexts() {
     try {
-      const res   = await fetch('texts.json');
-      state.texts = await res.json();
-    } catch {
-      console.warn('texts.json not loaded — using fallback.');
-      state.texts = [{
-        id: 't001', title: 'Весна', grade: 1, words: 10,
-        content: 'Пришла весна. Снег тает. Бегут ручьи. Птицы поют. Дети рады.',
-        questions: [
-          { id: 1, q: 'Что происходит со снегом?' },
-          { id: 2, q: 'Кто поёт?' },
-          { id: 3, q: 'Кто рад весне?' },
-        ],
-      }];
+      if (db) {
+        const querySnapshot = await db.collection('texts_for_reading').get();
+        const firebaseTexts = [];
+        querySnapshot.forEach((doc) => {
+          firebaseTexts.push({ id: doc.id, ...doc.data() });
+        });
+        state.texts = firebaseTexts;
+      } else {
+        console.warn('Firebase not initialized. Cannot load texts.');
+        state.texts = [];
+      }
+    } catch (error) {
+      console.error('Error loading texts from Firebase:', error);
+      state.texts = [];
     }
     
     // Load custom texts from localStorage
@@ -1522,3 +1540,4 @@ const App = (() => {
 })();
 
 document.addEventListener('DOMContentLoaded', App.init);
+
