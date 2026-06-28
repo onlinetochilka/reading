@@ -629,6 +629,9 @@ const UI = (() => {
     const container = document.getElementById('print-container');
     if (!container) return;
     
+    const wrapper = document.getElementById('print-content-wrapper');
+    if (wrapper) wrapper.innerHTML = '';
+    
     container.innerHTML = '<div class="print-cards-grid"></div>';
     const grid = container.querySelector('.print-cards-grid');
     

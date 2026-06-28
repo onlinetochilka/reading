@@ -396,6 +396,8 @@ const App = (() => {
 
     const wrapper = document.getElementById('print-content-wrapper');
     wrapper.innerHTML = '';
+    const journalContainer = document.getElementById('print-container');
+    if (journalContainer) journalContainer.innerHTML = '';
     
     const layoutRadio = document.querySelector('input[name="cab-print-layout"]:checked');
     const layout = layoutRadio ? layoutRadio.value : 'portrait';
@@ -449,6 +451,8 @@ const App = (() => {
   function printBlank() {
     const wrapper = document.getElementById('print-content-wrapper');
     wrapper.innerHTML = '';
+    const journalContainer = document.getElementById('print-container');
+    if (journalContainer) journalContainer.innerHTML = '';
     const div = document.createElement('div');
     UI.renderPrintBlank(div);
     wrapper.appendChild(div.firstElementChild);
