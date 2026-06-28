@@ -9,7 +9,18 @@ const UI = (() => {
 
   const LOGO = 'https://raw.githubusercontent.com/onlinetochilka/theme/main/tochilka-logo.svg';
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
+  // ── Utils ─────────────────────────────────────────────────────────────────
+
+  function formatWordsCount(n) {
+    if (n == null) n = 0;
+    let count = Math.abs(n);
+    let n10 = count % 10;
+    let n100 = count % 100;
+    let word = 'слов';
+    if (n10 === 1 && n100 !== 11) word = 'слово';
+    else if (n10 >= 2 && n10 <= 4 && (n100 < 10 || n100 >= 20)) word = 'слова';
+    return `${n} ${word}`;
+  }
 
   function escapeHtml(str) {
     const d = document.createElement('div');
@@ -729,9 +740,15 @@ const UI = (() => {
 
       const dateStr = new Date(r.date).toLocaleDateString('ru-RU');
       const norm = Assessment.getNorm(r.grade, r.date);
-      const normStr = norm ? `Норма: ${norm.min}-${norm.good} сл/мин` : 'Норма не задана';
+      let normHtml = '<div style="font-size: 10pt; color: #64748b; margin-top: 8px;">Норма не задана</div>';
+      if (norm) {
+        normHtml = `<div style="font-size: 10pt; color: #64748b; margin-top: 8px;">Норма:<br><span style="font-weight: 500;">${norm.min}-${norm.good} сл/мин</span></div>`;
+      }
       
-      const methodStr = r.readingMethod || 'Целыми словами';
+      let methodStr = r.readingMethod || 'Целыми словами';
+      if (r.orthographicReading) {
+        methodStr += '<br><span style="font-size:10pt; color:#64748b;">(орфографическое)</span>';
+      }
       const expText = r.expressiveness?.monotone ? 'Монотонно' : 
                       r.expressiveness?.ignoreSigns ? 'Игнорирует знаки' : '—';
 
@@ -742,7 +759,7 @@ const UI = (() => {
       const hasHistory = allResults.length >= 2;
       const chartId = `print-chart-${index}`;
 
-      const textInfoStr = (r.textTitle && r.wordCount) ? `«${r.textTitle}» · ${r.wordCount} слов` : '';
+      const textInfoStr = (r.textTitle && r.wordCount) ? `«${r.textTitle}» · ${formatWordsCount(r.wordCount)}` : '';
 
       card.innerHTML = `
         <div class="print-card-header">
@@ -756,7 +773,7 @@ const UI = (() => {
           <div class="print-card-speed-box">
             <div class="print-card-speed">${r.wpm || 0}</div>
             <div class="print-card-speed-label">сл/мин</div>
-            <div style="font-size: 10pt; color: #64748b; margin-top: 8px;">${normStr}</div>
+            ${normHtml}
           </div>
           <div class="print-card-stats">
             <div>
@@ -838,7 +855,7 @@ const UI = (() => {
             <input type="checkbox" class="text-checkbox" value="${t.id}" ${isChecked} style="width:18px; height:18px; cursor:pointer;" />
             <div>
               <h3 style="margin-bottom:2px; font-size:1rem;">${escapeHtml(t.title)}</h3>
-              <p class="muted" style="font-size:0.8rem">${t.grade} класс · ~${t.words || t.wordCount || 0} слов</p>
+              <p class="muted" style="font-size:0.8rem">${t.grade} класс · ~${formatWordsCount(t.words || t.wordCount || 0)}</p>
             </div>
           </div>
           <svg class="chevron" viewBox="0 0 20 20" fill="currentColor" width="18" height="18" style="transition:transform 0.3s; color:var(--blue);"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>

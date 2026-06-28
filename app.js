@@ -1565,7 +1565,9 @@ const App = (() => {
       landscapeStyle.textContent = '@media print { @page { size: landscape !important; margin: 15mm; } }';
       document.head.appendChild(landscapeStyle);
       
-      window.print();
+      setTimeout(() => {
+        window.print();
+      }, 300);
     });
 
     document.getElementById('btn-print-single-card')?.addEventListener('click', (e) => {
@@ -1581,7 +1583,9 @@ const App = (() => {
         landscapeStyle.textContent = '@media print { @page { size: landscape !important; margin: 15mm; } }';
         document.head.appendChild(landscapeStyle);
         
-        window.print();
+        setTimeout(() => {
+          window.print();
+        }, 300);
       }
     });
 
