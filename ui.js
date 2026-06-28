@@ -606,7 +606,10 @@ const UI = (() => {
     let statusClass = '';
     const norm = Assessment.getNorm(result.grade, result.date);
     if (norm) {
-      statusClass = (result.wpm >= norm.min) ? 'status-ok' : 'status-low';
+      const normResult = Assessment.evaluateNorm(result.wpm, norm);
+      statusClass = normResult === 'above' ? 'status-high' :
+                    normResult === 'normal' ? 'status-ok' :
+                    normResult === 'below' ? 'status-low' : '';
       document.getElementById('student-card-norm-text').textContent = `Норма: ${norm.min}-${norm.good} сл/мин`;
     } else {
       document.getElementById('student-card-norm-text').textContent = 'Норма не задана';
