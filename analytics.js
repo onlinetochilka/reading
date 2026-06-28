@@ -32,19 +32,49 @@ const Analytics = (() => {
     }
   }
 
-  // Send event (simulated YTM logging)
+  // Send event (Yandex.Metrica integration)
   function sendEvent(action, payload = {}) {
-    const eventData = {
-      action,
-      ...payload,
-      ...getUTMs(),
-      timestamp: new Date().toISOString()
-    };
-    
-    // YTM stub simulation
-    console.log(`[YTM Event] action: ${action}`, eventData);
-    
-    // In real app: window.dataLayer = window.dataLayer || []; window.dataLayer.push(eventData);
+    try {
+      const eventData = {
+        action,
+        ...payload,
+        ...getUTMs(),
+        timestamp: new Date().toISOString()
+      };
+      
+      console.log(`[YTM Event] action: ${action}`, eventData);
+
+      let targetName = null;
+      switch (action) {
+        case 'save-class':
+          targetName = 'add_class';
+          break;
+        case 'print-selected':
+        case 'print-blank':
+          targetName = 'print_materials';
+          break;
+        case 'start-teacher-check':
+        case 'start-self-check':
+          targetName = 'start_check';
+          break;
+        case 'save-check-result':
+          targetName = 'save_result';
+          break;
+        case 'print-cards':
+        case 'print-single-card':
+          targetName = 'print_reports';
+          break;
+        case 'export-csv':
+          targetName = 'export_csv';
+          break;
+      }
+
+      if (targetName && typeof ym === 'function') {
+        ym(110228295, 'reachGoal', targetName, eventData);
+      }
+    } catch (e) {
+      console.error('[Analytics] Error sending event:', e);
+    }
   }
 
   // Bind global click listener for elements with data-action
