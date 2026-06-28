@@ -14,10 +14,10 @@ const Assessment = (() => {
    * good = target norm
    */
   const readingNorms = {
-    1: { h1: { min: 25,  good: 30  }, h2: { min: 40,  good: 50  } },
-    2: { h1: { min: 50,  good: 60  }, h2: { min: 70,  good: 80  } },
-    3: { h1: { min: 70,  good: 80  }, h2: { min: 90,  good: 100 } },
-    4: { h1: { min: 100, good: 110 }, h2: { min: 115, good: 120 } },
+    1: { h1: { min: 25,  good: 30  }, h2: { min: 30,  good: 40  } },
+    2: { h1: { min: 40,  good: 50  }, h2: { min: 55,  good: 65  } },
+    3: { h1: { min: 60,  good: 70  }, h2: { min: 75,  good: 85  } },
+    4: { h1: { min: 80,  good: 90  }, h2: { min: 105, good: 115 } },
     5: { h1: { min: 120, good: 130 }, h2: { min: 130, good: 140 } },
   };
 
