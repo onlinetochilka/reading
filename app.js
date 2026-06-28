@@ -1036,22 +1036,33 @@ const App = (() => {
       classFilter.value = savedClassVal;
     }
 
-    // Populate students based on class
+    // Populate students based on class (or all classes if none selected)
     const savedStudentVal = studentFilter.value;
     studentFilter.innerHTML = '<option value="">Все ученики</option>';
+    studentFilter.disabled = false;
+
+    let studentsToDisplay = [];
+
     if (classFilter.value) {
       const cls = state.classes.find(c => c.id === classFilter.value);
       if (cls) {
-        studentFilter.disabled = false;
-        cls.students.forEach(s => {
-          studentFilter.appendChild(new Option(s.name, s.id));
-        });
-        if (cls.students.some(s => s.id === savedStudentVal)) {
-          studentFilter.value = savedStudentVal;
-        }
+        studentsToDisplay = cls.students.map(s => ({ ...s, displayName: s.name }));
       }
     } else {
-      studentFilter.disabled = true;
+      state.classes.forEach(c => {
+        c.students.forEach(s => {
+          studentsToDisplay.push({ ...s, displayName: `${s.name} (${c.name})` });
+        });
+      });
+      studentsToDisplay.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+    }
+
+    studentsToDisplay.forEach(s => {
+      studentFilter.appendChild(new Option(s.displayName, s.id));
+    });
+
+    if (studentsToDisplay.some(s => s.id === savedStudentVal)) {
+      studentFilter.value = savedStudentVal;
     }
   }
 
