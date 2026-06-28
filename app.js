@@ -420,10 +420,10 @@ const App = (() => {
       container.appendChild(item);
     });
     
-    let landscapeStyle = null;
     if (layout === 'landscape') {
       document.body.classList.add('print-landscape');
-      landscapeStyle = document.createElement('style');
+      const landscapeStyle = document.createElement('style');
+      landscapeStyle.id = 'print-landscape-style';
       landscapeStyle.textContent = '@media print { @page { size: landscape !important; margin: 15mm; } }';
       document.head.appendChild(landscapeStyle);
     } else {
@@ -432,15 +432,8 @@ const App = (() => {
 
     wrapper.appendChild(container);
 
-    const cleanupPrint = () => {
-      document.body.classList.remove('print-landscape');
-      if (landscapeStyle) landscapeStyle.remove();
-      wrapper.innerHTML = '';
-      window.removeEventListener('afterprint', cleanupPrint);
-    };
-    window.addEventListener('afterprint', cleanupPrint);
     // Fallback cleanup
-    setTimeout(cleanupPrint, 300000); 
+    setTimeout(globalCleanupPrint, 300000); 
 
     window.print();
   }
@@ -1278,7 +1271,17 @@ const App = (() => {
 
   // ── Event Binding ─────────────────────────────────────────────────────────
 
+  function globalCleanupPrint() {
+    document.body.classList.remove('print-landscape');
+    const style = document.getElementById('print-landscape-style');
+    if (style) style.remove();
+    const wrapper = document.getElementById('print-content-wrapper');
+    if (wrapper) wrapper.innerHTML = '';
+  }
+
   function bindEvents() {
+    window.addEventListener('afterprint', globalCleanupPrint);
+    
     // Tabs
     document.querySelectorAll('.tab-btn').forEach(btn =>
       btn.addEventListener('click', () => switchTab(btn.dataset.tab))
