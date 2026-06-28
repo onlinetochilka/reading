@@ -409,10 +409,7 @@ const App = (() => {
     
     const container = document.createElement('div');
     container.className = 'print-container';
-    if (layout === 'landscape') {
-      container.style.columnCount = '2';
-      container.style.columnGap = '40px';
-    }
+    // Layout columns are handled by CSS (body.print-landscape #print-content-wrapper)
 
     const textsToPrint = state.texts.filter(t => state.selectedTextIds.includes(String(t.id)));
       
