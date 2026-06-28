@@ -1218,6 +1218,10 @@ body.print-landscape #print-content-wrapper {
   margin: 0;
 }
 
+.print-container {
+  display: none;
+}
+
 /* ════════════════════════════════════════════════════════════════════════
      PRINT STYLES
 ════════════════════════════════════════════════════════════════════════ */
@@ -1230,20 +1234,40 @@ body.print-landscape #print-content-wrapper {
   body * {
     visibility: hidden;
   }
-  .print-container, .print-container * {
+  .app-container, .student-card-modal {
+    display: none !important;
+  }
+  .print-container {
+    display: block !important;
+    visibility: visible;
+    color: #111 !important;
+    position: relative;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  .print-container * {
     visibility: visible;
     color: #111 !important;
   }
-  .print-container {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
+  
+  /* Text Blocks Print */
+  .print-text-block {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    padding-bottom: 20mm;
+    margin-bottom: 20mm;
+    border-bottom: 1px dashed #94a3b8;
+  }
+  .print-text-block:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
   }
 
   /* Journal Cards Print Grid */
   .print-cards-grid {
-    display: grid;
+    display: grid !important;
     grid-template-columns: 1fr 1fr;
     gap: 15mm;
     width: 100%;
@@ -1256,7 +1280,7 @@ body.print-landscape #print-content-wrapper {
     padding: 30px;
     border-radius: 16px;
     background-color: transparent !important;
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     min-height: 150mm;
   }
