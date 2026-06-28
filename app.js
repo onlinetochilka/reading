@@ -1592,10 +1592,8 @@ const App = (() => {
 
   // ── Init ──────────────────────────────────────────────────────────────────
 
-  async function init() {
+  function init() {
     loadClasses();
-    await loadTexts();
-    updateStatsFilters();
     bindEvents();
 
     document.addEventListener('keydown', (e) => {
@@ -1616,6 +1614,13 @@ const App = (() => {
     });
 
     switchTab('students');
+
+    // Фоновая загрузка текстов из Firebase
+    loadTexts().then(() => {
+      updateStatsFilters();
+      if (state.currentTab === 'library') renderLibrary();
+      if (state.currentTab === 'check') renderCheck();
+    }).catch(err => console.error('Failed to load texts in background:', err));
   }
 
   return { init, switchTab };
