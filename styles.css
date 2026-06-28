@@ -25,7 +25,7 @@
   /* Floating card glass */
   --glass-bg:       rgba(255, 255, 255, 1);
   --glass-border:   rgba(255, 255, 255, 0.92);
-  --glass-blur:     18px;
+  --glass-blur:     4px;
 
   /* Soft neumorphic floating shadow */
   --shadow-card:
