@@ -16,7 +16,6 @@ if (typeof firebase !== 'undefined' && !firebase.apps.length) {
 const db = typeof firebase !== 'undefined' ? firebase.firestore() : null;
 
 // ── Temporary Auto-Seeding Logic (Uncomment to seed texts.json to Firebase) ──
-/*
 async function seedTextsToFirebase() {
   if (!db) return;
   try {
@@ -51,8 +50,9 @@ async function seedTextsToFirebase() {
     console.error('Error seeding texts to Firebase:', err);
   }
 }
-// seedTextsToFirebase();
-*/
+// Вызываем функцию один раз (потом закомментируем обратно)
+seedTextsToFirebase();
+
 
 /**
  * App — main application orchestrator.
