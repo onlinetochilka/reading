@@ -1156,35 +1156,42 @@ body.print-landscape #print-content-wrapper {
 
 /* Student Card Modal */
 .student-card-modal {
-  border: none;
-  background: transparent;
+  border: 1px solid rgba(27, 58, 107, 0.15);
+  background: #ffffff;
   padding: 0;
-  max-width: 100%;
-  width: auto;
+  max-width: 480px;
+  width: 90%;
   margin: auto !important;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 .student-card-modal::backdrop {
   background-color: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
+}
+.student-card-modal .modal__title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
 }
 .student-card-body {
-  padding: 24px;
+  padding: 24px 32px 32px 32px;
   text-align: center;
 }
 .student-card-speed {
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--text-primary);
+  font-size: 4rem;
+  font-weight: 800;
+  color: #1b3a6b;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-bottom: 24px;
+  gap: 12px;
+  margin-bottom: 8px;
+  line-height: 1;
 }
 .student-card-speed .speed-label {
-  font-size: 1rem;
-  font-weight: normal;
-  color: var(--text-secondary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #64748b;
 }
 .student-card-speed .status-dot {
   width: 16px;
@@ -1192,7 +1199,7 @@ body.print-landscape #print-content-wrapper {
 }
 .student-card-details h3 {
   font-size: 1rem;
-  color: var(--text-secondary);
+  color: #64748b;
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1202,12 +1209,12 @@ body.print-landscape #print-content-wrapper {
   padding: 0;
   margin: 0 0 24px 0;
   font-size: 1rem;
-  color: var(--text-primary);
+  color: #1e293b;
 }
 .student-card-details .comp-value {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #1e293b;
   margin: 0;
 }
 
@@ -1216,8 +1223,8 @@ body.print-landscape #print-content-wrapper {
 ════════════════════════════════════════════════════════════════════════ */
 @media print {
   @page {
-    size: A4 portrait;
-    margin: 10mm;
+    size: A4 landscape;
+    margin: 15mm;
   }
 
   body * {
@@ -1225,7 +1232,7 @@ body.print-landscape #print-content-wrapper {
   }
   .print-container, .print-container * {
     visibility: visible;
-    color: #1e293b !important;
+    color: #111 !important;
   }
   .print-container {
     position: absolute;
@@ -1236,18 +1243,19 @@ body.print-landscape #print-content-wrapper {
 
   /* Journal Cards Print Grid */
   .print-cards-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 10mm;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15mm;
     width: 100%;
+    align-items: start;
   }
   .print-card {
     break-inside: avoid;
     page-break-inside: avoid;
-    border: 2px solid #e2e8f0;
+    border: 1px solid #666;
     padding: 30px;
     border-radius: 16px;
-    background-color: #ffffff !important;
+    background-color: transparent !important;
     display: flex;
     flex-direction: column;
     min-height: 150mm;
@@ -1258,20 +1266,20 @@ body.print-landscape #print-content-wrapper {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    border-bottom: 2px solid #f1f5f9;
+    border-bottom: 1px solid #ccc;
     padding-bottom: 15px;
   }
   
   .print-card-name {
     font-size: 24pt;
     font-weight: 800;
-    color: #0f172a !important;
+    color: #000 !important;
     margin: 0;
   }
   
   .print-card-date {
     font-size: 14pt;
-    color: #64748b !important;
+    color: #444 !important;
   }
   
   .print-card-body {
@@ -1282,24 +1290,24 @@ body.print-landscape #print-content-wrapper {
   
   .print-card-speed-box {
     flex: 0 0 140px;
-    background: #f8fafc !important;
+    background: transparent !important;
     border-radius: 12px;
     padding: 20px 10px;
     text-align: center;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #666;
   }
   
   .print-card-speed {
     font-size: 42pt;
     font-weight: 800;
-    color: #1e40af !important;
+    color: #000 !important;
     line-height: 1;
     margin-bottom: 5px;
   }
   .print-card-speed-label { 
     font-size: 14pt; 
     font-weight: 600; 
-    color: #64748b !important;
+    color: #444 !important;
   }
   
   .print-card-stats {
@@ -1315,14 +1323,14 @@ body.print-landscape #print-content-wrapper {
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: 700;
-    color: #94a3b8 !important;
+    color: #666 !important;
     margin-bottom: 4px;
   }
   
   .print-card-text {
     font-size: 15pt;
     font-weight: 600;
-    color: #334155 !important;
+    color: #111 !important;
     margin: 0;
   }
   

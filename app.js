@@ -1288,6 +1288,8 @@ const App = (() => {
     if (style) style.remove();
     const wrapper = document.getElementById('print-content-wrapper');
     if (wrapper) wrapper.innerHTML = '';
+    const container = document.getElementById('print-container');
+    if (container) container.innerHTML = '';
   }
 
   function bindEvents() {
@@ -1499,11 +1501,14 @@ const App = (() => {
       if (state.selectedResults.size === 0) return;
       const resultsToPrint = Assessment.getResults().filter(r => state.selectedResults.has(String(r.id)));
       UI.renderPrintJournalCards(resultsToPrint);
+      
+      document.body.classList.add('print-landscape');
+      const landscapeStyle = document.createElement('style');
+      landscapeStyle.id = 'print-landscape-style';
+      landscapeStyle.textContent = '@media print { @page { size: landscape !important; margin: 15mm; } }';
+      document.head.appendChild(landscapeStyle);
+      
       window.print();
-      setTimeout(() => {
-        const container = document.getElementById('print-container');
-        if (container) container.innerHTML = '';
-      }, 1000);
     });
 
     document.getElementById('btn-print-single-card')?.addEventListener('click', (e) => {
@@ -1512,11 +1517,14 @@ const App = (() => {
       const result = Assessment.getResults().find(r => String(r.id) === rid);
       if (result) {
         UI.renderPrintJournalCards([result]);
+        
+        document.body.classList.add('print-landscape');
+        const landscapeStyle = document.createElement('style');
+        landscapeStyle.id = 'print-landscape-style';
+        landscapeStyle.textContent = '@media print { @page { size: landscape !important; margin: 15mm; } }';
+        document.head.appendChild(landscapeStyle);
+        
         window.print();
-        setTimeout(() => {
-          const container = document.getElementById('print-container');
-          if (container) container.innerHTML = '';
-        }, 1000);
       }
     });
 

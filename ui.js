@@ -516,6 +516,15 @@ const UI = (() => {
     document.getElementById('student-card-name').textContent = result.studentName || 'Неизвестный ученик';
     document.getElementById('student-card-wpm').textContent = result.wpm || 0;
     
+    const textInfo = document.getElementById('student-card-text-info');
+    if (textInfo) {
+      if (result.textTitle && result.wordCount) {
+        textInfo.textContent = `«${result.textTitle}» · ${result.wordCount} слов`;
+      } else {
+        textInfo.textContent = '';
+      }
+    }
+    
     let statusClass = '';
     const norm = Assessment.getNorm(result.grade, Assessment.getCurrentHalf());
     if (norm) {
@@ -653,9 +662,14 @@ const UI = (() => {
       const hasHistory = allResults.length >= 2;
       const chartId = `print-chart-${index}`;
 
+      const textInfoStr = (r.textTitle && r.wordCount) ? `«${r.textTitle}» · ${r.wordCount} слов` : '';
+
       card.innerHTML = `
         <div class="print-card-header">
-          <h2 class="print-card-name">${escapeHtml(r.studentName || '—')}</h2>
+          <div>
+            <h2 class="print-card-name">${escapeHtml(r.studentName || '—')}</h2>
+            ${textInfoStr ? `<div style="font-size: 14pt; color: #444; margin-top: 4px; font-weight: 500;">${textInfoStr}</div>` : ''}
+          </div>
           <span class="print-card-date">${dateStr}</span>
         </div>
         <div class="print-card-body">
@@ -701,7 +715,7 @@ const UI = (() => {
                 datasets: [{
                   label: 'Сл/мин',
                   data: wpmData,
-                  borderColor: '#1e40af',
+                  borderColor: '#111',
                   backgroundColor: 'transparent',
                   tension: 0.3,
                   pointRadius: 3,
