@@ -838,7 +838,7 @@ const UI = (() => {
             <input type="checkbox" class="text-checkbox" value="${t.id}" ${isChecked} style="width:18px; height:18px; cursor:pointer;" />
             <div>
               <h3 style="margin-bottom:2px; font-size:1rem;">${escapeHtml(t.title)}</h3>
-              <p class="muted" style="font-size:0.8rem">${t.grade} класс · ~${t.wordCount} слов</p>
+              <p class="muted" style="font-size:0.8rem">${t.grade} класс · ~${t.words || t.wordCount || 0} слов</p>
             </div>
           </div>
           <svg class="chevron" viewBox="0 0 20 20" fill="currentColor" width="18" height="18" style="transition:transform 0.3s; color:var(--blue);"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
