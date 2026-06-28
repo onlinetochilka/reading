@@ -83,7 +83,10 @@ const App = (() => {
     
     // Hide action bars by default; tabs that need them will re-show them in render
     const libActionBar = document.getElementById('context-action-bar');
-    if (libActionBar) libActionBar.style.display = 'none';
+    if (libActionBar) {
+      libActionBar.classList.remove('visible');
+      libActionBar.style.display = ''; // Ensure no inline none is left over
+    }
     
     const journalActionBar = document.getElementById('action-bar');
     if (journalActionBar) journalActionBar.classList.add('hidden');
@@ -376,7 +379,8 @@ const App = (() => {
     if (!bar || !countSpan) return;
 
     if (state.currentTab === 'library' && state.selectedTextIds.length > 0) {
-      bar.style.display = ''; // Restore display if it was hidden by tab switch
+      bar.style.display = ''; // Ensure it's not hidden
+      void bar.offsetWidth; // Force reflow
       countSpan.textContent = state.selectedTextIds.length;
       countSpan.classList.add('pulse-anim');
       setTimeout(() => countSpan.classList.remove('pulse-anim'), 250);
