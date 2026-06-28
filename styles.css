@@ -610,7 +610,7 @@ select {
 }
 .text-placeholder p { font-size: 0.9rem; max-width: 240px; line-height: 1.5; }
 
-.text-display      { font-size: 1.05rem; line-height: 1.85; color: var(--blue); pointer-events: none; }
+.text-display      { font-size: 1.05rem; line-height: 1.85; color: var(--blue); pointer-events: none; white-space: pre-wrap; }
 .is-evaluating .text-display { pointer-events: auto; }
 .is-evaluating .word { cursor: pointer; }
 
