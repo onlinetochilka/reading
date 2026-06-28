@@ -51,8 +51,7 @@ async function seedTextsToFirebase() {
   }
 }
 // Вызываем функцию один раз (потом закомментируем обратно)
-seedTextsToFirebase();
-
+// seedTextsToFirebase();
 
 /**
  * App — main application orchestrator.
@@ -316,12 +315,11 @@ const App = (() => {
       filtered = filtered.filter(t => t.grade === parseInt(classFilter));
     }
     
-    if (halfFilter && window.Assessment) {
+    if (halfFilter) {
       filtered = filtered.filter(t => {
-        const norm = Assessment.readingNorms[t.grade];
-        if (!norm) return true; // If no norm, don't filter it out
-        const isH1 = t.words < norm.h2.min;
-        return halfFilter === 'h1' ? isH1 : !isH1;
+        const semester = halfFilter === 'h1' ? 1 : 2;
+        // Check if the semester property exists, and if it matches
+        return t.semester === semester;
       });
     }
 
