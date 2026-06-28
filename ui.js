@@ -526,10 +526,10 @@ const UI = (() => {
     }
     
     let statusClass = '';
-    const norm = Assessment.getNorm(result.grade, Assessment.getCurrentHalf());
+    const norm = Assessment.getNorm(result.grade, result.date);
     if (norm) {
       statusClass = (result.wpm >= norm.min) ? 'status-ok' : 'status-low';
-      document.getElementById('student-card-norm-text').textContent = `Норма: ${norm.min}-${norm.max} сл/мин`;
+      document.getElementById('student-card-norm-text').textContent = `Норма: ${norm.min}-${norm.good} сл/мин`;
     } else {
       document.getElementById('student-card-norm-text').textContent = 'Норма не задана';
     }
@@ -544,7 +544,7 @@ const UI = (() => {
     if (result.errors?.distortion) errors.push(`Искажения: ${result.errors.distortion}`);
     if (result.errors?.accent) errors.push(`Неверные ударения: ${result.errors.accent}`);
     if (result.errors?.ending) errors.push(`Ошибки в окончаниях: ${result.errors.ending}`);
-    if (result.errors?.regression) errors.push(`Регрессии: ${result.errors.regression}`);
+    if (result.errors?.regression) errors.push(`Повторы: ${result.errors.regression}`);
     
     if (errors.length === 0) {
       errorsList.innerHTML = '<li>Технических ошибок не зафиксировано</li>';
@@ -556,9 +556,14 @@ const UI = (() => {
       });
     }
 
-    const comp = Array.isArray(result.comprehension) && result.comprehension.length
-                   ? `${result.comprehension.filter(c => c.correct).length} из ${result.comprehension.length}`
-                   : (result.comprehensionScore || '—');
+    let comp = '—';
+    if (Array.isArray(result.comprehension) && result.comprehension.length) {
+      comp = `${result.comprehension.filter(c => c.correct).length} из ${result.comprehension.length}`;
+    } else if (result.comprehensionScore && typeof result.comprehensionScore === 'object') {
+      comp = `${result.comprehensionScore.correct} из ${result.comprehensionScore.total}`;
+    } else if (result.comprehensionScore !== undefined) {
+      comp = String(result.comprehensionScore);
+    }
     document.getElementById('student-card-comp').textContent = comp;
     
     document.getElementById('student-card-method').textContent = result.readingMethod || 'Целыми словами';
@@ -643,16 +648,21 @@ const UI = (() => {
       if (r.errors?.distortion) errorsList.push(`Искажения: ${r.errors.distortion}`);
       if (r.errors?.accent) errorsList.push(`Ударения: ${r.errors.accent}`);
       if (r.errors?.ending) errorsList.push(`Окончания: ${r.errors.ending}`);
-      if (r.errors?.regression) errorsList.push(`Регрессии: ${r.errors.regression}`);
+      if (r.errors?.regression) errorsList.push(`Повторы: ${r.errors.regression}`);
       const errorsStr = errorsList.length > 0 ? errorsList.join(', ') : 'Ошибок нет';
       
-      const comp = Array.isArray(r.comprehension) && r.comprehension.length
-                   ? `${r.comprehension.filter(c => c.correct).length} из ${r.comprehension.length}`
-                   : (r.comprehensionScore || '—');
+      let comp = '—';
+      if (Array.isArray(r.comprehension) && r.comprehension.length) {
+        comp = `${r.comprehension.filter(c => c.correct).length} из ${r.comprehension.length}`;
+      } else if (r.comprehensionScore && typeof r.comprehensionScore === 'object') {
+        comp = `${r.comprehensionScore.correct} из ${r.comprehensionScore.total}`;
+      } else if (r.comprehensionScore !== undefined) {
+        comp = String(r.comprehensionScore);
+      }
 
       const dateStr = new Date(r.date).toLocaleDateString('ru-RU');
-      const norm = Assessment.getNorm(r.grade, Assessment.getCurrentHalf());
-      const normStr = norm ? `Норма: ${norm.min}-${norm.max} сл/мин` : 'Норма не задана';
+      const norm = Assessment.getNorm(r.grade, r.date);
+      const normStr = norm ? `Норма: ${norm.min}-${norm.good} сл/мин` : 'Норма не задана';
       
       const methodStr = r.readingMethod || 'Целыми словами';
       const expText = r.expressiveness?.monotone ? 'Монотонно' : 
