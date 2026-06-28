@@ -80,6 +80,14 @@ const App = (() => {
     document.querySelectorAll('.tab-content').forEach(el =>
       el.classList.toggle('active', el.id === `tab-${tab}`)
     );
+    
+    // Hide action bars by default; tabs that need them will re-show them in render
+    const libActionBar = document.getElementById('context-action-bar');
+    if (libActionBar) libActionBar.style.display = 'none';
+    
+    const journalActionBar = document.getElementById('action-bar');
+    if (journalActionBar) journalActionBar.classList.add('hidden');
+
     if (tab === 'students')   renderStudents();
     if (tab === 'library')    renderLibrary();
     if (tab === 'check')      renderCheck();
