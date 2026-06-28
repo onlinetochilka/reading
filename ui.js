@@ -644,7 +644,11 @@ const UI = (() => {
     }
     document.getElementById('student-card-comp').textContent = comp;
     
-    document.getElementById('student-card-method').textContent = result.readingMethod || 'Целыми словами';
+    let methodStr = result.readingMethod || 'Целыми словами';
+    if (result.orthographicReading) {
+      methodStr += ' (орфографическое)';
+    }
+    document.getElementById('student-card-method').textContent = methodStr;
     
     const expText = result.expressiveness?.monotone ? 'Монотонно' : 
                     result.expressiveness?.ignoreSigns ? 'Игнорирует знаки препинания' : '—';

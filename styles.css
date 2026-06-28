@@ -1159,7 +1159,7 @@ body.print-landscape #print-content-wrapper {
   border: 1px solid rgba(27, 58, 107, 0.15);
   background: #ffffff;
   padding: 0;
-  max-width: 480px;
+  max-width: 560px;
   width: 90%;
   margin: auto !important;
   border-radius: 16px;
