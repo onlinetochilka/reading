@@ -375,7 +375,8 @@ const App = (() => {
     const countSpan = document.getElementById('selection-counter');
     if (!bar || !countSpan) return;
 
-    if (state.selectedTextIds.length > 0) {
+    if (state.currentTab === 'library' && state.selectedTextIds.length > 0) {
+      bar.style.display = ''; // Restore display if it was hidden by tab switch
       countSpan.textContent = state.selectedTextIds.length;
       countSpan.classList.add('pulse-anim');
       setTimeout(() => countSpan.classList.remove('pulse-anim'), 250);
