@@ -15,7 +15,44 @@ if (typeof firebase !== 'undefined' && !firebase.apps.length) {
 }
 const db = typeof firebase !== 'undefined' ? firebase.firestore() : null;
 
-// Temporary Auto-Seeding Logic removed
+// ── Temporary Auto-Seeding Logic (Uncomment to seed texts.json to Firebase) ──
+/*
+async function seedTextsToFirebase() {
+  if (!db) return;
+  try {
+    const response = await fetch('texts.json');
+    const textsData = await response.json();
+    console.log(`Loaded ${textsData.length} texts from texts.json. Seeding to Firebase...`);
+    
+    const collectionRef = db.collection('texts_for_reading');
+    
+    // First, get and delete all existing documents
+    const snapshot = await collectionRef.get();
+    if (!snapshot.empty) {
+      console.log(`Deleting ${snapshot.size} existing texts...`);
+      const deleteBatch = db.batch();
+      snapshot.docs.forEach(doc => {
+        deleteBatch.delete(doc.ref);
+      });
+      await deleteBatch.commit();
+    }
+    
+    // Now add new texts
+    console.log('Adding new texts...');
+    const writeBatch = db.batch();
+    textsData.forEach(text => {
+      const docRef = collectionRef.doc(String(text.id));
+      writeBatch.set(docRef, text);
+    });
+    await writeBatch.commit();
+    
+    console.log('Successfully seeded all texts to Firebase! Reload the page to see changes.');
+  } catch (err) {
+    console.error('Error seeding texts to Firebase:', err);
+  }
+}
+// seedTextsToFirebase();
+*/
 
 /**
  * App — main application orchestrator.

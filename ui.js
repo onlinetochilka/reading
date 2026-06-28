@@ -208,6 +208,73 @@ const UI = (() => {
     });
 
     container.appendChild(wrap);
+
+    // Render questions if available
+    if (textData.questions && textData.questions.length > 0) {
+      const qContainer = document.createElement('div');
+      qContainer.className = 'text-questions-container';
+      qContainer.style.marginTop = '24px';
+      qContainer.style.paddingTop = '16px';
+      qContainer.style.borderTop = '2px dashed #e2e8f0';
+
+      const qTitle = document.createElement('h3');
+      qTitle.textContent = 'Вопросы по тексту:';
+      qTitle.style.fontSize = '1.1rem';
+      qTitle.style.marginBottom = '12px';
+      qTitle.style.color = 'var(--blue)';
+      qContainer.appendChild(qTitle);
+
+      textData.questions.forEach((q, i) => {
+        const qBlock = document.createElement('div');
+        qBlock.style.marginBottom = '12px';
+        qBlock.style.background = '#f8fafc';
+        qBlock.style.padding = '12px';
+        qBlock.style.borderRadius = '8px';
+        qBlock.style.border = '1px solid #e2e8f0';
+
+        const qText = document.createElement('div');
+        qText.style.fontWeight = '500';
+        qText.style.color = '#334155';
+        qText.textContent = `${i + 1}. ${q.q}`;
+        qBlock.appendChild(qText);
+
+        if (q.a) {
+          const btn = document.createElement('button');
+          btn.className = 'btn btn--ghost btn--small';
+          btn.textContent = 'Показать ответ';
+          btn.style.marginTop = '8px';
+          btn.style.fontSize = '0.8rem';
+          btn.style.padding = '4px 8px';
+
+          const ansText = document.createElement('div');
+          ansText.style.opacity = '0.7';
+          ansText.style.fontStyle = 'italic';
+          ansText.style.fontSize = '0.85rem';
+          ansText.style.marginTop = '8px';
+          ansText.style.display = 'none';
+          ansText.style.transition = 'all 0.3s ease';
+          ansText.textContent = q.a;
+
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (ansText.style.display === 'none') {
+              ansText.style.display = 'block';
+              btn.textContent = 'Скрыть ответ';
+            } else {
+              ansText.style.display = 'none';
+              btn.textContent = 'Показать ответ';
+            }
+          });
+
+          qBlock.appendChild(btn);
+          qBlock.appendChild(ansText);
+        }
+
+        qContainer.appendChild(qBlock);
+      });
+
+      container.appendChild(qContainer);
+    }
   }
 
   /** Highlight all words up to (and including) the given index. */
@@ -349,7 +416,7 @@ const UI = (() => {
         row.innerHTML = `
           <span class="question-text" style="flex:1; font-size:0.9rem; line-height:1.3;">
             ${i + 1}. ${escapeHtml(q.q)} 
-            <span style="opacity:0.7">(${q.a ? escapeHtml(q.a) : 'Ответ не указан'})</span>
+            ${q.a ? `<span style="opacity:0.7; font-style:italic; font-size:0.85rem;"><br>${escapeHtml(q.a)}</span>` : ''}
           </span>
           <div class="question-btns" style="display:flex; gap:8px; flex-shrink:0;">
             <button class="btn-answer btn-yes${cur?.correct === true  ? ' active' : ''}" data-action="answer-yes" data-qi="${i}" data-ans="true"  title="Верно">
