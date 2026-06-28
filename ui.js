@@ -429,7 +429,7 @@ const UI = (() => {
               </tr>
             </thead>
             <tbody>
-              ${Array(22).fill('<tr><td style="border: 1px solid #cbd5e1; height: 44px;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td></tr>').join('')}
+              ${Array(18).fill('<tr><td style="border: 1px solid #cbd5e1; height: 44px;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td></tr>').join('')}
             </tbody>
           </table>
 
