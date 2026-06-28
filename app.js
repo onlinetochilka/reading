@@ -1345,7 +1345,11 @@ const App = (() => {
     // Library filters
     document.getElementById('lib-filter-class')?.addEventListener('change', renderLibrary);
     document.getElementById('lib-sort')?.addEventListener('change', renderLibrary);
-    document.getElementById('lib-search')?.addEventListener('input', renderLibrary);
+    let searchTimeout;
+    document.getElementById('lib-search')?.addEventListener('input', () => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(renderLibrary, 250);
+    });
 
     // Check mode toggle
     document.getElementById('toggle-teacher')?.addEventListener('click', () => { state.checkMode = 'teacher'; renderCheck(); });
