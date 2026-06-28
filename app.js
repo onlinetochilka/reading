@@ -418,8 +418,6 @@ const App = (() => {
     const layoutRadio = document.querySelector('input[name="cab-print-layout"]:checked');
     const layout = layoutRadio ? layoutRadio.value : 'portrait';
     
-    const container = document.createElement('div');
-    container.className = 'print-container';
     // Layout columns are handled by CSS (body.print-landscape #print-content-wrapper)
 
     const textsToPrint = state.texts.filter(t => state.selectedTextIds.includes(String(t.id)));
@@ -440,7 +438,7 @@ const App = (() => {
       content.textContent = t.content;
       item.appendChild(content);
 
-      container.appendChild(item);
+      wrapper.appendChild(item);
     });
     
     if (layout === 'landscape') {
@@ -452,8 +450,6 @@ const App = (() => {
     } else {
       document.body.classList.remove('print-landscape');
     }
-
-    wrapper.appendChild(container);
 
     // Fallback cleanup
     setTimeout(globalCleanupPrint, 300000); 
