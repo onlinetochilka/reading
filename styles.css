@@ -654,13 +654,13 @@ select {
   display: none;
 }
 .reading-fullscreen-content {
-  flex: 1;
+  flex: 1 0 auto;
   max-width: 900px;
   margin: 0 auto;
   width: 100%;
   background: white;
   border-radius: 16px;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-card);
   padding: 40px;
   position: relative;
 }
