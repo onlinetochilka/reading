@@ -271,12 +271,23 @@ const App = (() => {
   function getFilteredLibraryTexts() {
     let filtered = [...state.texts];
     const classFilter = document.getElementById('lib-filter-class')?.value;
+    const halfFilter = document.getElementById('lib-filter-half')?.value;
     const sortFilter = document.getElementById('lib-sort')?.value;
     const searchFilter = document.getElementById('lib-search')?.value.toLowerCase().trim();
 
     if (classFilter) {
       filtered = filtered.filter(t => t.grade === parseInt(classFilter));
     }
+    
+    if (halfFilter && window.Assessment) {
+      filtered = filtered.filter(t => {
+        const norm = Assessment.readingNorms[t.grade];
+        if (!norm) return true; // If no norm, don't filter it out
+        const isH1 = t.words < norm.h2.min;
+        return halfFilter === 'h1' ? isH1 : !isH1;
+      });
+    }
+
     if (searchFilter) {
       filtered = filtered.filter(t => t.title.toLowerCase().includes(searchFilter));
     }
@@ -1360,6 +1371,7 @@ const App = (() => {
     
     // Library filters
     document.getElementById('lib-filter-class')?.addEventListener('change', renderLibrary);
+    document.getElementById('lib-filter-half')?.addEventListener('change', renderLibrary);
     document.getElementById('lib-sort')?.addEventListener('change', renderLibrary);
     let searchTimeout;
     document.getElementById('lib-search')?.addEventListener('input', () => {
