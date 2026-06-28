@@ -719,7 +719,7 @@ const App = (() => {
     
     const readingSelf = document.getElementById('check-reading-self');
     if (readingSelf) {
-      if (cs !== 'setup') {
+      if (cs !== 'setup' && state.checkMode === 'self') {
         readingSelf.classList.remove('hidden');
         document.body.style.overflow = 'hidden'; // prevent background scrolling
       } else {
