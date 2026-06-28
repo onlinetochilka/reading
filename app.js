@@ -1265,6 +1265,15 @@ const App = (() => {
       console.error('Error loading texts from Firebase:', error);
       state.texts = [];
     }
+
+    try {
+      const customTexts = JSON.parse(localStorage.getItem('tochilka_custom_texts') || '[]');
+      if (Array.isArray(customTexts)) {
+        state.texts = [...state.texts, ...customTexts];
+      }
+    } catch (e) {
+      console.warn('Could not load custom texts', e);
+    }
   }
 
   // ── Event Binding ─────────────────────────────────────────────────────────
